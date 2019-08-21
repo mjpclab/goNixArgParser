@@ -1,7 +1,11 @@
 package goNixArgParser
 
-func (r *ParseResult) Contains(key string) bool {
+func (r *ParseResult) HasKey(key string) bool {
 	return r.params[key] != nil
+}
+
+func (r *ParseResult) HasValue(key string) bool {
+	return r.params[key] != nil && len(r.params[key]) > 0
 }
 
 func _getValue(source map[string][]string, key string) (value string, found bool) {

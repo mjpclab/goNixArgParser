@@ -4,33 +4,44 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"path"
+	"strings"
 )
 
-func NewOptionSet(canMergeOption bool, mergeOptionPrefix string) *OptionSet {
+func NewOptionSet(mergeOptionPrefix string) *OptionSet {
 	s := &OptionSet{
-		canMergeOption:    canMergeOption,
 		mergeOptionPrefix: mergeOptionPrefix,
 		options:           []*Option{},
 		keyOptionMap:      map[string]*Option{},
 		flagOptionMap:     map[string]*Option{},
+		flagMap:           map[string]*Flag{},
 		keyDefaultMap:     map[string][]string{},
 	}
 	return s
 }
 
+func NewSimpleOptionSet() *OptionSet {
+	return NewOptionSet("-")
+}
+
 func (s *OptionSet) Append(opt *Option) error {
 	if len(opt.Key) == 0 {
-		return errors.New("key not found")
+		return errors.New("key is empty")
 	}
+	if s.keyOptionMap[opt.Key] != nil {
+		return errors.New("key '" + opt.Key + "' already exists")
+	}
+
 	if len(opt.Flags) == 0 {
 		return errors.New("flag not found")
 	}
-	if s.keyOptionMap[opt.Key] != nil {
-		return errors.New("key already exists")
-	}
 	for _, flag := range opt.Flags {
-		if s.flagOptionMap[flag] != nil {
-			return errors.New("flag '" + flag + "' already exists")
+		flagName := flag.Name
+		if len(flagName) == 0 {
+			return errors.New("flag name is empty")
+		}
+		if s.flagMap[flagName] != nil {
+			return errors.New("flag '" + flagName + "' already exists")
 		}
 	}
 
@@ -40,7 +51,9 @@ func (s *OptionSet) Append(opt *Option) error {
 	s.options = append(s.options, option)
 	s.keyOptionMap[option.Key] = option
 	for _, flag := range option.Flags {
-		s.flagOptionMap[flag] = option
+		flagName := flag.Name
+		s.flagOptionMap[flagName] = option
+		s.flagMap[flagName] = flag
 	}
 	if len(option.DefaultValue) > 0 {
 		s.keyDefaultMap[option.Key] = option.DefaultValue
@@ -48,36 +61,36 @@ func (s *OptionSet) Append(opt *Option) error {
 	return nil
 }
 
-func (s *OptionSet) Flag(key, flag, summary string) error {
+func (s *OptionSet) AddFlag(key, flag, summary string) error {
 	return s.Append(&Option{
 		Key:     key,
-		Flags:   []string{flag},
+		Flags:   []*Flag{NewSimpleFlag(flag)},
 		Summary: summary,
 	})
 }
 
-func (s *OptionSet) Flags(key string, flags []string, summary string) error {
+func (s *OptionSet) AddFlags(key string, flags []string, summary string) error {
 	return s.Append(&Option{
 		Key:     key,
-		Flags:   flags,
+		Flags:   NewSimpleFlags(flags),
 		Summary: summary,
 	})
 }
 
-func (s *OptionSet) FlagValue(key, flag, defaultValue, summary string) error {
+func (s *OptionSet) AddFlagValue(key, flag, defaultValue, summary string) error {
 	return s.Append(&Option{
 		Key:          key,
-		Flags:        []string{flag},
+		Flags:        []*Flag{NewSimpleFlag(flag)},
 		AcceptValue:  true,
 		DefaultValue: []string{defaultValue},
 		Summary:      summary,
 	})
 }
 
-func (s *OptionSet) FlagValues(key, flag string, defaultValues []string, summary string) error {
+func (s *OptionSet) AddFlagValues(key, flag string, defaultValues []string, summary string) error {
 	return s.Append(&Option{
 		Key:          key,
-		Flags:        []string{flag},
+		Flags:        []*Flag{NewSimpleFlag(flag)},
 		AcceptValue:  true,
 		MultiValues:  true,
 		DefaultValue: defaultValues,
@@ -85,48 +98,39 @@ func (s *OptionSet) FlagValues(key, flag string, defaultValues []string, summary
 	})
 }
 
-func (s *OptionSet) FlagsValue(key string, flags []string, defaultValue, summary string) error {
+func (s *OptionSet) AddFlagsValue(key string, flags []string, defaultValue, summary string) error {
 	return s.Append(&Option{
 		Key:          key,
-		Flags:        flags,
+		Flags:        NewSimpleFlags(flags),
 		AcceptValue:  true,
 		DefaultValue: []string{defaultValue},
 		Summary:      summary,
 	})
 }
 
-func (s *OptionSet) FlagsValues(key string, flags, defaultValues []string, summary string) error {
+func (s *OptionSet) AddFlagsValues(key string, flags, defaultValues []string, summary string) error {
 	return s.Append(&Option{
 		Key:          key,
-		Flags:        flags,
+		Flags:        NewSimpleFlags(flags),
 		AcceptValue:  true,
 		MultiValues:  true,
 		DefaultValue: defaultValues,
 		Summary:      summary,
 	})
+}
+
+func (s *OptionSet) String() string {
+	sb := &strings.Builder{}
+	for _, opt := range s.options {
+		sb.WriteByte('\n')
+		sb.WriteString(opt.String())
+	}
+	sb.WriteByte('\n')
+	return sb.String()
 }
 
 func (s *OptionSet) PrintHelp() {
-	fmt.Println("Usage of " + os.Args[0] + ":")
-	fmt.Println()
+	fmt.Print("Usage of " + path.Base(os.Args[0]) + ":\n")
 
-	for _, opt := range s.options {
-		for i, flag := range opt.Flags {
-			if i > 0 {
-				fmt.Print(", ")
-			}
-			fmt.Print(flag)
-		}
-		fmt.Println()
-
-		if len(opt.Summary) > 0 {
-			fmt.Println(opt.Summary)
-		}
-
-		if len(opt.Description) > 0 {
-			fmt.Println(opt.Description)
-		}
-
-		fmt.Println()
-	}
+	fmt.Print(s.String())
 }
