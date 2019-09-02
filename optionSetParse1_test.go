@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestParse(t *testing.T) {
+func TestParse1(t *testing.T) {
 	var err error
 
 	s := NewOptionSet("-")

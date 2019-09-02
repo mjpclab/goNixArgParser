@@ -3,9 +3,6 @@ package goNixArgParser
 import (
 	"bytes"
 	"errors"
-	"fmt"
-	"os"
-	"path"
 )
 
 func NewOptionSet(mergeOptionPrefix string) *OptionSet {
@@ -127,10 +124,4 @@ func (s *OptionSet) String() string {
 	}
 	buffer.WriteByte('\n')
 	return buffer.String()
-}
-
-func (s *OptionSet) PrintHelp() {
-	fmt.Print("Usage of " + path.Base(os.Args[0]) + ":\n")
-
-	fmt.Print(s.String())
 }

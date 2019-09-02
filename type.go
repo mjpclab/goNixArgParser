@@ -1,12 +1,19 @@
 package goNixArgParser
 
+type Command struct {
+	Name        string
+	OptionSet   *OptionSet
+	SubCommands []*Command
+}
+
 type OptionSet struct {
 	mergeOptionPrefix string
 	options           []*Option
-	keyOptionMap      map[string]*Option
-	flagOptionMap     map[string]*Option
-	flagMap           map[string]*Flag
-	keyDefaultMap     map[string][]string
+
+	keyOptionMap  map[string]*Option
+	flagOptionMap map[string]*Option
+	flagMap       map[string]*Flag
+	keyDefaultMap map[string][]string
 }
 
 type Option struct {
@@ -36,10 +43,13 @@ type ParseResult struct {
 
 type ArgType int
 
-const UnknownArg ArgType = 0
-const FlagArg ArgType = 1
-const ValueArg ArgType = 2
-const RestArg ArgType = 3
+const (
+	Unknown ArgType = iota
+	SubCmd
+	FlagName
+	Value
+	Rest
+)
 
 type Arg struct {
 	Text string

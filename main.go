@@ -37,5 +37,5 @@ func PrintHelp() {
 }
 
 func Parse() *ParseResult {
-	return CommandLine.Parse(os.Args[1:])
+	return CommandLine.Parse(os.Args)
 }
