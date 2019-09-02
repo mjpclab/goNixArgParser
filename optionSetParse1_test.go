@@ -43,10 +43,10 @@ func TestParse(t *testing.T) {
 	}
 
 	err = s.Append(&Option{
-		Key:          "deft",
-		Flags:        NewSimpleFlags([]string{"-df", "--default"}),
-		AcceptValue:  true,
-		DefaultValue: []string{"myDefault"},
+		Key:           "deft",
+		Flags:         NewSimpleFlags([]string{"-df", "--default"}),
+		AcceptValue:   true,
+		DefaultValues: []string{"myDefault"},
 	})
 	if err != nil {
 		t.Error(err)

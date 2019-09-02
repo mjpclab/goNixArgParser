@@ -11,10 +11,10 @@ func TestOptionSet(t *testing.T) {
 	s := NewOptionSet("")
 
 	err = s.Append(&Option{
-		Key:          "deft",
-		Flags:        []*Flag{&Flag{Name: "-df"}, &Flag{Name: "--default"}},
-		AcceptValue:  true,
-		DefaultValue: []string{"myDefault"},
+		Key:           "deft",
+		Flags:         []*Flag{&Flag{Name: "-df"}, &Flag{Name: "--default"}},
+		AcceptValue:   true,
+		DefaultValues: []string{"myDefault"},
 	})
 	if err != nil {
 		t.Error(err)

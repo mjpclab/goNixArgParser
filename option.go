@@ -32,7 +32,7 @@ func (opt *Option) String() string {
 	}
 
 	dftBuffer := &bytes.Buffer{}
-	for _, d := range opt.DefaultValue {
+	for _, d := range opt.DefaultValues {
 		if len(d) > 0 {
 			if dftBuffer.Len() > 0 {
 				dftBuffer.WriteString(", ")

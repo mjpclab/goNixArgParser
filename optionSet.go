@@ -55,8 +55,8 @@ func (s *OptionSet) Append(opt *Option) error {
 		s.flagOptionMap[flagName] = option
 		s.flagMap[flagName] = flag
 	}
-	if len(option.DefaultValue) > 0 {
-		s.keyDefaultMap[option.Key] = option.DefaultValue
+	if len(option.DefaultValues) > 0 {
+		s.keyDefaultMap[option.Key] = option.DefaultValues
 	}
 	return nil
 }
@@ -79,43 +79,43 @@ func (s *OptionSet) AddFlags(key string, flags []string, summary string) error {
 
 func (s *OptionSet) AddFlagValue(key, flag, defaultValue, summary string) error {
 	return s.Append(&Option{
-		Key:          key,
-		Flags:        []*Flag{NewSimpleFlag(flag)},
-		AcceptValue:  true,
-		DefaultValue: []string{defaultValue},
-		Summary:      summary,
+		Key:           key,
+		Flags:         []*Flag{NewSimpleFlag(flag)},
+		AcceptValue:   true,
+		DefaultValues: []string{defaultValue},
+		Summary:       summary,
 	})
 }
 
 func (s *OptionSet) AddFlagValues(key, flag string, defaultValues []string, summary string) error {
 	return s.Append(&Option{
-		Key:          key,
-		Flags:        []*Flag{NewSimpleFlag(flag)},
-		AcceptValue:  true,
-		MultiValues:  true,
-		DefaultValue: defaultValues,
-		Summary:      summary,
+		Key:           key,
+		Flags:         []*Flag{NewSimpleFlag(flag)},
+		AcceptValue:   true,
+		MultiValues:   true,
+		DefaultValues: defaultValues,
+		Summary:       summary,
 	})
 }
 
 func (s *OptionSet) AddFlagsValue(key string, flags []string, defaultValue, summary string) error {
 	return s.Append(&Option{
-		Key:          key,
-		Flags:        NewSimpleFlags(flags),
-		AcceptValue:  true,
-		DefaultValue: []string{defaultValue},
-		Summary:      summary,
+		Key:           key,
+		Flags:         NewSimpleFlags(flags),
+		AcceptValue:   true,
+		DefaultValues: []string{defaultValue},
+		Summary:       summary,
 	})
 }
 
 func (s *OptionSet) AddFlagsValues(key string, flags, defaultValues []string, summary string) error {
 	return s.Append(&Option{
-		Key:          key,
-		Flags:        NewSimpleFlags(flags),
-		AcceptValue:  true,
-		MultiValues:  true,
-		DefaultValue: defaultValues,
-		Summary:      summary,
+		Key:           key,
+		Flags:         NewSimpleFlags(flags),
+		AcceptValue:   true,
+		MultiValues:   true,
+		DefaultValues: defaultValues,
+		Summary:       summary,
 	})
 }
 

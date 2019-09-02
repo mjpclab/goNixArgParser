@@ -10,15 +10,15 @@ type OptionSet struct {
 }
 
 type Option struct {
-	Key          string
-	Summary      string
-	Description  string
-	Flags        []*Flag
-	AcceptValue  bool
-	MultiValues  bool
-	OverridePrev bool
-	Delimiter    string
-	DefaultValue []string
+	Key           string
+	Summary       string
+	Description   string
+	Flags         []*Flag
+	AcceptValue   bool
+	MultiValues   bool
+	OverridePrev  bool
+	Delimiter     string
+	DefaultValues []string
 }
 type Flag struct {
 	Name            string
