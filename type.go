@@ -17,7 +17,7 @@ type Option struct {
 	AcceptValue   bool
 	MultiValues   bool
 	OverridePrev  bool
-	Delimiter     string
+	Delimiters    string
 	DefaultValues []string
 }
 type Flag struct {

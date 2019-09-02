@@ -2,7 +2,12 @@ package goNixArgParser
 
 import (
 	"bytes"
+	"strings"
 )
+
+func (opt *Option) isDelimiter(r rune) bool {
+	return strings.IndexRune(opt.Delimiters, r) >= 0
+}
 
 func (opt *Option) String() string {
 	buffer := &bytes.Buffer{}
