@@ -26,7 +26,7 @@ type Option struct {
 	AcceptValue   bool
 	MultiValues   bool
 	OverridePrev  bool
-	Delimiters    string
+	Delimiters    []rune
 	DefaultValues []string
 }
 

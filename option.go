@@ -3,11 +3,15 @@ package goNixArgParser
 import (
 	"bytes"
 	"io"
-	"strings"
 )
 
 func (opt *Option) isDelimiter(r rune) bool {
-	return strings.IndexRune(opt.Delimiters, r) >= 0
+	for _, delimiter := range opt.Delimiters {
+		if r == delimiter {
+			return true
+		}
+	}
+	return false
 }
 
 func (opt *Option) GetHelp() []byte {

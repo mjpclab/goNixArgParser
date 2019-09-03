@@ -36,7 +36,7 @@ func TestParse1(t *testing.T) {
 		Flags:       NewSimpleFlags([]string{"-m", "--multi"}),
 		AcceptValue: true,
 		MultiValues: true,
-		Delimiters:  ",",
+		Delimiters:  []rune{','},
 	})
 	if err != nil {
 		t.Error(err)
