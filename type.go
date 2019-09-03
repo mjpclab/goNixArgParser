@@ -8,8 +8,9 @@ type Command struct {
 }
 
 type OptionSet struct {
-	mergeOptionPrefix string
-	options           []*Option
+	mergeFlagPrefix string
+	restSigns       []string
+	options         []*Option
 
 	keyOptionMap  map[string]*Option
 	flagOptionMap map[string]*Option
@@ -43,6 +44,7 @@ const (
 	CommandArg
 	FlagArg
 	ValueArg
+	RestSignArg
 	RestArg
 )
 

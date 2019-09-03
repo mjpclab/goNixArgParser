@@ -7,8 +7,14 @@ import (
 func (s *OptionSet) getNormalizedArgs(initArgs []string) []*Arg {
 	args := make([]*Arg, 0, len(initArgs))
 
+	foundRestSign := false
 	for _, arg := range initArgs {
-		if s.flagMap[arg] != nil {
+		if foundRestSign {
+			args = append(args, NewArg(arg, RestArg))
+		} else if s.isRestSign(arg) {
+			foundRestSign = true
+			args = append(args, NewArg(arg, RestSignArg))
+		} else if s.flagMap[arg] != nil {
 			args = append(args, NewArg(arg, FlagArg))
 		} else {
 			args = append(args, NewArg(arg, UnknownArg))
@@ -23,15 +29,15 @@ func (s *OptionSet) splitMergedArg(arg *Arg) (args []*Arg, success bool) {
 	argText := arg.Text
 
 	if arg.Type != UnknownArg ||
-		len(argText) <= len(s.mergeOptionPrefix) ||
-		!strings.HasPrefix(argText, s.mergeOptionPrefix) {
+		len(argText) <= len(s.mergeFlagPrefix) ||
+		!strings.HasPrefix(argText, s.mergeFlagPrefix) {
 		return
 	}
 
-	mergedArgs := argText[len(s.mergeOptionPrefix):]
+	mergedArgs := argText[len(s.mergeFlagPrefix):]
 	splittedArgs := make([]*Arg, 0, len(mergedArgs))
 	for _, mergedArg := range mergedArgs {
-		splittedArg := s.mergeOptionPrefix + string(mergedArg)
+		splittedArg := s.mergeFlagPrefix + string(mergedArg)
 		flag := flagMap[splittedArg]
 		if flag == nil || !flag.canMerge {
 			return
@@ -132,6 +138,15 @@ func (s *OptionSet) splitConcatAssignArgs(initArgs []*Arg) []*Arg {
 	return args
 }
 
+func isValueArg(arg *Arg) bool {
+	switch arg.Type {
+	case ValueArg, UnknownArg:
+		return true
+	default:
+		return false
+	}
+}
+
 func (s *OptionSet) Parse(initArgs []string) *ParseResult {
 	params := map[string][]string{}
 	defaults := s.keyDefaultMap
@@ -148,8 +163,14 @@ func (s *OptionSet) Parse(initArgs []string) *ParseResult {
 	for i, argCount, peeked := 0, len(args), 0; i < argCount; i, peeked = i+1+peeked, 0 {
 		arg := args[i]
 
+		if arg.Type == RestSignArg {
+			continue
+		}
+
 		if arg.Type == UnknownArg {
 			arg.Type = RestArg
+		}
+		if arg.Type == RestArg {
 			rests = append(rests, arg.Text)
 			continue
 		}
@@ -162,7 +183,7 @@ func (s *OptionSet) Parse(initArgs []string) *ParseResult {
 		}
 
 		if !opt.MultiValues { // option has 1 value
-			if i == argCount-1 || args[i+1].Type == FlagArg { // no more value or next flag found
+			if i == argCount-1 || !isValueArg(args[i+1]) { // no more value
 				if opt.OverridePrev || params[opt.Key] == nil {
 					params[opt.Key] = []string{}
 				}
@@ -184,7 +205,7 @@ func (s *OptionSet) Parse(initArgs []string) *ParseResult {
 				break
 			}
 
-			if args[i+peeked+1].Type == FlagArg { // next flag found
+			if !isValueArg(args[i+peeked+1]) { // no more value
 				break
 			}
 

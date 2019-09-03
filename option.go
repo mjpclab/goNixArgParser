@@ -23,7 +23,7 @@ func (opt *Option) GetHelp() []byte {
 	if opt.AcceptValue {
 		buffer.WriteString(" <value>")
 		if opt.MultiValues {
-			buffer.WriteString(", ...")
+			buffer.WriteString(" ...")
 		}
 	}
 

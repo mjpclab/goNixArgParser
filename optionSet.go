@@ -5,20 +5,34 @@ import (
 	"errors"
 )
 
-func NewOptionSet(mergeOptionPrefix string) *OptionSet {
+func NewOptionSet(
+	mergeOptionPrefix string,
+	restSigns []string,
+) *OptionSet {
 	s := &OptionSet{
-		mergeOptionPrefix: mergeOptionPrefix,
-		options:           []*Option{},
-		keyOptionMap:      map[string]*Option{},
-		flagOptionMap:     map[string]*Option{},
-		flagMap:           map[string]*Flag{},
-		keyDefaultMap:     map[string][]string{},
+		mergeFlagPrefix: mergeOptionPrefix,
+		restSigns:       restSigns,
+		options:         []*Option{},
+		keyOptionMap:    map[string]*Option{},
+		flagOptionMap:   map[string]*Option{},
+		flagMap:         map[string]*Flag{},
+		keyDefaultMap:   map[string][]string{},
 	}
 	return s
 }
 
 func NewSimpleOptionSet() *OptionSet {
-	return NewOptionSet("-")
+	return NewOptionSet("-", []string{"--"})
+}
+
+func (s *OptionSet) isRestSign(input string) bool {
+	for _, sign := range s.restSigns {
+		if input == sign {
+			return true
+		}
+	}
+
+	return false
 }
 
 func (s *OptionSet) Append(opt *Option) error {

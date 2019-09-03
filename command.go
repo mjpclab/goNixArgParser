@@ -5,11 +5,14 @@ import (
 	"os"
 )
 
-func NewCommand(name, summary, mergeOptionPrefix string) *Command {
+func NewCommand(
+	name, summary, mergeOptionPrefix string,
+	restSigns []string,
+) *Command {
 	return &Command{
 		Name:        name,
 		Summary:     summary,
-		OptionSet:   NewOptionSet(mergeOptionPrefix),
+		OptionSet:   NewOptionSet(mergeOptionPrefix, restSigns),
 		SubCommands: []*Command{},
 	}
 }
@@ -23,8 +26,11 @@ func NewSimpleCommand(name, summary string) *Command {
 	}
 }
 
-func (c *Command) NewSubCommand(name, summary, mergeOptionPrefix string) *Command {
-	subCommand := NewCommand(name, summary, mergeOptionPrefix)
+func (c *Command) NewSubCommand(
+	name, summary, mergeOptionPrefix string,
+	restSigns []string,
+) *Command {
+	subCommand := NewCommand(name, summary, mergeOptionPrefix, restSigns)
 	c.SubCommands = append(c.SubCommands, subCommand)
 	return subCommand
 }

@@ -8,7 +8,7 @@ import (
 func TestParse1(t *testing.T) {
 	var err error
 
-	s := NewOptionSet("-")
+	s := NewOptionSet("-", []string{"--"})
 	err = s.Append(&Option{
 		Key:         "tag",
 		Summary:     "tag summary",
@@ -82,7 +82,7 @@ func TestParse1(t *testing.T) {
 	err = s.Append(&Option{
 		Key: "withEqual",
 		Flags: []*Flag{
-			&Flag{Name: "--with-equal", canEqualAssign: true},
+			{Name: "--with-equal", canEqualAssign: true},
 		},
 		AcceptValue: true,
 	})
@@ -93,7 +93,7 @@ func TestParse1(t *testing.T) {
 	err = s.Append(&Option{
 		Key: "withConcat",
 		Flags: []*Flag{
-			&Flag{Name: "-w", canConcatAssign: true},
+			{Name: "-w", canConcatAssign: true},
 		},
 		AcceptValue: true,
 	})
@@ -116,6 +116,9 @@ func TestParse1(t *testing.T) {
 		"-sq2", "\"double_quoted_value\"",
 		"-sm",
 		"-xy",
+		"--",
+		"-s", "1",
+		"--with-equal=notwork",
 	}
 	r := s.Parse(args)
 	fmt.Printf("%+v\n", r)

@@ -5,7 +5,16 @@ import (
 	"path"
 )
 
-var CommandLine *Command = NewCommand(path.Base(os.Args[0]), "", "-")
+var CommandLine *Command
+
+func init() {
+	var commandName string
+	if len(os.Args) > 0 {
+		commandName = path.Base(os.Args[0])
+	}
+
+	CommandLine = NewSimpleCommand(commandName, "")
+}
 
 func Append(opt *Option) error {
 	return CommandLine.OptionSet.Append(opt)

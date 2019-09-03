@@ -8,7 +8,7 @@ import (
 func TestParse2(t *testing.T) {
 	var err error
 
-	s := NewOptionSet("")
+	s := NewOptionSet("", nil)
 
 	err = s.Append(&Option{
 		Key:           "deft",
