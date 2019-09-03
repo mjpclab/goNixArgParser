@@ -2,6 +2,7 @@ package goNixArgParser
 
 import (
 	"bytes"
+	"io"
 	"strings"
 )
 
@@ -9,7 +10,7 @@ func (opt *Option) isDelimiter(r rune) bool {
 	return strings.IndexRune(opt.Delimiters, r) >= 0
 }
 
-func (opt *Option) String() string {
+func (opt *Option) GetHelp() []byte {
 	buffer := &bytes.Buffer{}
 
 	for i, flag := range opt.Flags {
@@ -48,10 +49,12 @@ func (opt *Option) String() string {
 	if dftBuffer.Len() > 0 {
 		buffer.WriteByte('\n')
 		buffer.WriteString("Default: ")
-		buffer.WriteString(dftBuffer.String())
+		io.Copy(buffer, dftBuffer)
 	}
 
-	buffer.WriteByte('\n')
+	if buffer.Len() > 0 {
+		buffer.WriteByte('\n')
+	}
 
-	return buffer.String()
+	return buffer.Bytes()
 }

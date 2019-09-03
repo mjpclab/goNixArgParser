@@ -1,35 +1,38 @@
 package goNixArgParser
 
-import "os"
+import (
+	"os"
+	"path"
+)
 
-var CommandLine *OptionSet = NewOptionSet("-")
+var CommandLine *Command = NewCommand(path.Base(os.Args[0]), "", "-")
 
 func Append(opt *Option) error {
-	return CommandLine.Append(opt)
+	return CommandLine.OptionSet.Append(opt)
 }
 
 func AddFlag(key, flag, summary string) error {
-	return CommandLine.AddFlag(key, flag, summary)
+	return CommandLine.OptionSet.AddFlag(key, flag, summary)
 }
 
 func AddFlags(key string, flags []string, summary string) error {
-	return CommandLine.AddFlags(key, flags, summary)
+	return CommandLine.OptionSet.AddFlags(key, flags, summary)
 }
 
 func AddFlagValue(key, flag, defaultValue, summary string) error {
-	return CommandLine.AddFlagValue(key, flag, defaultValue, summary)
+	return CommandLine.OptionSet.AddFlagValue(key, flag, defaultValue, summary)
 }
 
 func AddFlagValues(key, flag string, defaultValues []string, summary string) error {
-	return CommandLine.AddFlagValues(key, flag, defaultValues, summary)
+	return CommandLine.OptionSet.AddFlagValues(key, flag, defaultValues, summary)
 }
 
 func AddFlagsValue(key string, flags []string, defaultValue, summary string) error {
-	return CommandLine.AddFlagsValue(key, flags, defaultValue, summary)
+	return CommandLine.OptionSet.AddFlagsValue(key, flags, defaultValue, summary)
 }
 
 func AddFlagsValues(key string, flags, defaultValues []string, summary string) error {
-	return CommandLine.AddFlagsValues(key, flags, defaultValues, summary)
+	return CommandLine.OptionSet.AddFlagsValues(key, flags, defaultValues, summary)
 }
 
 func PrintHelp() {

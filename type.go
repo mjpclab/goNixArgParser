@@ -2,6 +2,7 @@ package goNixArgParser
 
 type Command struct {
 	Name        string
+	Summary     string
 	OptionSet   *OptionSet
 	SubCommands []*Command
 }
@@ -27,6 +28,7 @@ type Option struct {
 	Delimiters    string
 	DefaultValues []string
 }
+
 type Flag struct {
 	Name            string
 	canMerge        bool
@@ -34,24 +36,25 @@ type Flag struct {
 	canConcatAssign bool
 }
 
-type ParseResult struct {
-	inputs   []*Arg
-	params   map[string][]string
-	defaults map[string][]string
-	rests    []string
-}
-
 type ArgType int
 
 const (
-	Unknown ArgType = iota
-	SubCmd
-	FlagName
-	Value
-	Rest
+	UnknownArg ArgType = iota
+	CommandArg
+	FlagArg
+	ValueArg
+	RestArg
 )
 
 type Arg struct {
 	Text string
 	Type ArgType
+}
+
+type ParseResult struct {
+	inputs   []*Arg
+	commands []string
+	params   map[string][]string
+	defaults map[string][]string
+	rests    []string
 }

@@ -162,6 +162,5 @@ func TestParse1(t *testing.T) {
 	}
 
 	fmt.Println("rests:", r.rests)
-
-	s.PrintHelp()
+	fmt.Print(string(s.GetHelp()))
 }
