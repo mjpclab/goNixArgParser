@@ -2,7 +2,6 @@ package goNixArgParser
 
 import (
 	"os"
-	"path"
 )
 
 var CommandLine *Command
@@ -10,7 +9,7 @@ var CommandLine *Command
 func init() {
 	var commandName string
 	if len(os.Args) > 0 {
-		commandName = path.Base(os.Args[0])
+		commandName = os.Args[0]
 	}
 
 	CommandLine = NewSimpleCommand(commandName, "")

@@ -3,6 +3,7 @@ package goNixArgParser
 import (
 	"bytes"
 	"os"
+	"path"
 )
 
 func NewCommand(
@@ -99,7 +100,7 @@ func (c *Command) GetHelp() []byte {
 	buffer := &bytes.Buffer{}
 
 	if len(c.Name) > 0 {
-		buffer.WriteString(c.Name)
+		buffer.WriteString(path.Base(c.Name))
 		buffer.WriteString(": ")
 	}
 	if len(c.Summary) > 0 {
