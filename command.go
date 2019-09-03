@@ -115,23 +115,19 @@ func (c *Command) GetHelp() []byte {
 	if len(optionsHelp) > 0 {
 		buffer.WriteString("\nOptions:\n\n")
 		buffer.Write(optionsHelp)
-		buffer.WriteByte('\n')
 	}
 
 	if len(c.SubCommands) > 0 {
 		buffer.WriteString("\nSub commands:\n\n")
-		for i, cmd := range c.SubCommands {
-			if i > 0 {
-				buffer.WriteByte('\n')
-			}
+		for _, cmd := range c.SubCommands {
 			buffer.WriteString(cmd.Name)
+			buffer.WriteByte('\n')
 			if len(cmd.Summary) > 0 {
-				buffer.WriteByte('\n')
 				buffer.WriteString(cmd.Summary)
+				buffer.WriteByte('\n')
 			}
 			buffer.WriteByte('\n')
 		}
-		buffer.WriteByte('\n')
 	}
 
 	return buffer.Bytes()

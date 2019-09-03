@@ -157,11 +157,9 @@ func (s *OptionSet) AddFlagsValues(key string, flags []string, envVar string, de
 
 func (s *OptionSet) GetHelp() []byte {
 	buffer := &bytes.Buffer{}
-	for i, opt := range s.options {
-		if i > 0 {
-			buffer.WriteByte('\n')
-		}
+	for _, opt := range s.options {
 		buffer.Write(opt.GetHelp())
+		buffer.WriteByte('\n')
 	}
 
 	return buffer.Bytes()

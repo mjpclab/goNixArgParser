@@ -2,7 +2,6 @@ package goNixArgParser
 
 import (
 	"bytes"
-	"io"
 )
 
 func (opt *Option) isDelimiter(r rune) bool {
@@ -31,32 +30,41 @@ func (opt *Option) GetHelp() []byte {
 		}
 	}
 
-	if len(opt.Summary) > 0 {
+	buffer.WriteByte('\n')
+
+	if len(opt.EnvVars) > 0 {
+		buffer.WriteString("EnvVar: ")
+
+		for i, envVar := range opt.EnvVars {
+			if i > 0 {
+				buffer.WriteString(", ")
+			}
+			buffer.WriteString(envVar)
+		}
+
 		buffer.WriteByte('\n')
+	}
+
+	if len(opt.DefaultValues) > 0 {
+		buffer.WriteString("Default: ")
+
+		for i, d := range opt.DefaultValues {
+			if i > 0 {
+				buffer.WriteString(", ")
+			}
+			buffer.WriteString(d)
+		}
+
+		buffer.WriteByte('\n')
+	}
+
+	if len(opt.Summary) > 0 {
 		buffer.WriteString(opt.Summary)
+		buffer.WriteByte('\n')
 	}
 
 	if len(opt.Description) > 0 {
-		buffer.WriteByte('\n')
 		buffer.WriteString(opt.Description)
-	}
-
-	dftBuffer := &bytes.Buffer{}
-	for _, d := range opt.DefaultValues {
-		if len(d) > 0 {
-			if dftBuffer.Len() > 0 {
-				dftBuffer.WriteString(", ")
-			}
-			dftBuffer.WriteString(d)
-		}
-	}
-	if dftBuffer.Len() > 0 {
-		buffer.WriteByte('\n')
-		buffer.WriteString("Default: ")
-		io.Copy(buffer, dftBuffer)
-	}
-
-	if buffer.Len() > 0 {
 		buffer.WriteByte('\n')
 	}
 
