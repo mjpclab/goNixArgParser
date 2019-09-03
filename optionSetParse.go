@@ -229,7 +229,6 @@ func (s *OptionSet) Parse(initArgs []string) *ParseResult {
 	}
 
 	return &ParseResult{
-		inputs:   args,
 		params:   params,
 		envs:     envs,
 		defaults: defaults,

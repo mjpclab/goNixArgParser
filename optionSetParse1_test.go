@@ -138,9 +138,6 @@ func TestParse1(t *testing.T) {
 	}
 	r := s.Parse(args)
 	fmt.Printf("%+v\n", r)
-	for _, input := range r.inputs {
-		fmt.Printf("%+v\n", input)
-	}
 
 	if r.HasKey("deft") {
 		t.Error("deft")

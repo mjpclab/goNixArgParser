@@ -56,7 +56,6 @@ type Arg struct {
 }
 
 type ParseResult struct {
-	inputs   []*Arg
 	commands []string
 	params   map[string][]string
 	envs     map[string][]string
