@@ -5,11 +5,11 @@ func (r *ParseResult) HasKey(key string) bool {
 }
 
 func (r *ParseResult) HasValue(key string) bool {
-	return r.params[key] != nil && len(r.params[key]) > 0
+	return len(r.params[key]) > 0
 }
 
 func _getValue(source map[string][]string, key string) (value string, found bool) {
-	if source[key] != nil && len(source[key]) > 0 {
+	if len(source[key]) > 0 {
 		return source[key][0], true
 	}
 	return
