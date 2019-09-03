@@ -40,22 +40,22 @@ func TestParse2(t *testing.T) {
 		t.Error(err)
 	}
 
-	err = s.AddFlagValue("port", "--port", "21", "port to listen")
+	err = s.AddFlagValue("port", "--port", "", "21", "port to listen")
 	if err != nil {
 		t.Error(err)
 	}
 
-	err = s.AddFlagValues("ports", "--ports", []string{"80", "8080"}, "ports to listen for http")
+	err = s.AddFlagValues("ports", "--ports", "", []string{"80", "8080"}, "ports to listen for http")
 	if err != nil {
 		t.Error(err)
 	}
 
-	err = s.AddFlagsValue("file", []string{"-f", "--files"}, "", "file to open")
+	err = s.AddFlagsValue("file", []string{"-f", "--files"}, "", "", "file to open")
 	if err != nil {
 		t.Error(err)
 	}
 
-	err = s.AddFlagsValues("props", []string{"-p", "--props"}, []string{}, "properties")
+	err = s.AddFlagsValues("props", []string{"-p", "--props"}, "", []string{}, "properties")
 	if err != nil {
 		t.Error(err)
 	}
@@ -72,7 +72,7 @@ func TestParse2(t *testing.T) {
 	}
 
 	parsed := s.Parse(args)
-	if parsed.GetValue("deft") != "myDefault" {
+	if v, _ := parsed.GetValue("deft"); v != "myDefault" {
 		t.Error("deft")
 	}
 	if !parsed.HasKey("flag") {
@@ -87,21 +87,21 @@ func TestParse2(t *testing.T) {
 	if !parsed.HasKey("q") {
 		t.Error("q")
 	}
-	if parsed.GetValue("port") != "22" {
+	if v, _ := parsed.GetValue("port"); v != "22" {
 		t.Error("port")
 	}
 
-	ports := parsed.GetValues("ports")
+	ports, _ := parsed.GetValues("ports")
 	fmt.Println("ports:", ports)
 	if len(ports) != 3 {
 		t.Error("ports")
 	}
 
-	if parsed.GetValue("file") != "file1" {
+	if v, _ := parsed.GetValue("file"); v != "file1" {
 		t.Error("file")
 	}
 
-	props := parsed.GetValues("props")
+	props, _ := parsed.GetValues("props")
 	fmt.Println("props:", props)
 	if len(props) != 5 {
 		t.Error("props")

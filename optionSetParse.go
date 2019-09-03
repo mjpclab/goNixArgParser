@@ -149,6 +149,7 @@ func isValueArg(arg *Arg) bool {
 
 func (s *OptionSet) Parse(initArgs []string) *ParseResult {
 	params := map[string][]string{}
+	envs := s.keyEnvMap
 	defaults := s.keyDefaultMap
 	rests := []string{}
 
@@ -230,6 +231,7 @@ func (s *OptionSet) Parse(initArgs []string) *ParseResult {
 	return &ParseResult{
 		inputs:   args,
 		params:   params,
+		envs:     envs,
 		defaults: defaults,
 		rests:    rests,
 	}

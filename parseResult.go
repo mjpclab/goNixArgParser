@@ -9,19 +9,24 @@ func (r *ParseResult) HasValue(key string) bool {
 }
 
 func _getValue(source map[string][]string, key string) (value string, found bool) {
-	if len(source[key]) > 0 {
+	if len(source[key]) > 0 && len(source[key][0]) > 0 {
 		return source[key][0], true
 	}
 	return
 }
 
-func (r *ParseResult) GetValue(key string) string {
-	value, found := _getValue(r.params, key)
+func (r *ParseResult) GetValue(key string) (value string, found bool) {
+	value, found = _getValue(r.params, key)
+
 	if !found {
-		value, _ = _getValue(r.defaults, key)
+		value, found = _getValue(r.envs, key)
 	}
 
-	return value
+	if !found {
+		value, found = _getValue(r.defaults, key)
+	}
+
+	return
 }
 
 func _getValues(source map[string][]string, key string) (values []string, found bool) {
@@ -35,10 +40,15 @@ func _getValues(source map[string][]string, key string) (values []string, found 
 	return
 }
 
-func (r *ParseResult) GetValues(key string) (values []string) {
-	values, found := _getValues(r.params, key)
+func (r *ParseResult) GetValues(key string) (values []string, found bool) {
+	values, found = _getValues(r.params, key)
+
 	if !found {
-		values, _ = _getValues(r.defaults, key)
+		values, found = _getValues(r.envs, key)
+	}
+
+	if !found {
+		values, found = _getValues(r.defaults, key)
 	}
 
 	return

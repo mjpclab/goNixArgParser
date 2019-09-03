@@ -101,6 +101,21 @@ func TestParse1(t *testing.T) {
 		t.Error(err)
 	}
 
+	err = s.Append(&Option{
+		Key: "fromenv",
+		Flags: []*Flag{
+			{Name: "--from-env", canEqualAssign: true},
+		},
+		AcceptValue:   true,
+		MultiValues:   true,
+		Delimiters:    []rune{','},
+		EnvVars:       []string{"FROMENV"},
+		DefaultValues: []string{"fromEnvDft1", "fromEnvDft2"},
+	})
+	if err != nil {
+		t.Error(err)
+	}
+
 	args := []string{
 		"-t",
 		"-un1", "val1",
@@ -116,6 +131,7 @@ func TestParse1(t *testing.T) {
 		"-sq2", "\"double_quoted_value\"",
 		"-sm",
 		"-xy",
+		// "--from-env=1,2,3",
 		"--",
 		"-s", "1",
 		"--with-equal=notwork",
@@ -130,17 +146,17 @@ func TestParse1(t *testing.T) {
 		t.Error("deft")
 	}
 
-	if r.GetValue("deft") != "myDefault" {
+	if v, _ := r.GetValue("deft"); v != "myDefault" {
 		t.Error("default")
 	}
 
-	single := r.GetValue("single")
+	single, _ := r.GetValue("single")
 	fmt.Println("single:", single)
 	if single != "singleval1" {
 		t.Error("single")
 	}
 
-	multi := r.GetValues("multi")
+	multi, _ := r.GetValues("multi")
 	fmt.Println("multi:", multi)
 	if len(multi) != 4 {
 		t.Error("multi should have 4 values")
@@ -154,16 +170,20 @@ func TestParse1(t *testing.T) {
 		t.Error("flagY")
 	}
 
-	withEqual := r.GetValue("withEqual")
+	withEqual, _ := r.GetValue("withEqual")
 	if withEqual != "abcde" {
 		t.Error("withEqual:", withEqual)
 	}
 
-	withConcat := r.GetValue("withConcat")
+	withConcat, _ := r.GetValue("withConcat")
 	if withConcat != "concatedvalue" {
 		t.Error("withConcat:", withConcat)
 	}
 
 	fmt.Println("rests:", r.rests)
+
+	fmt.Print("fromenv: ")
+	fmt.Println(r.GetValues("fromenv"))
+
 	fmt.Print(string(s.GetHelp()))
 }

@@ -3,7 +3,11 @@ package goNixArgParser
 import (
 	"bytes"
 	"errors"
+	"os"
+	"strings"
 )
+
+var defaultOptionDelimiters = []rune{',', ' ', '\t', '\v', '\r', '\n'}
 
 func NewOptionSet(
 	mergeOptionPrefix string,
@@ -16,6 +20,7 @@ func NewOptionSet(
 		keyOptionMap:    map[string]*Option{},
 		flagOptionMap:   map[string]*Option{},
 		flagMap:         map[string]*Flag{},
+		keyEnvMap:       map[string][]string{},
 		keyDefaultMap:   map[string][]string{},
 	}
 	return s
@@ -43,9 +48,6 @@ func (s *OptionSet) Append(opt *Option) error {
 		return errors.New("key '" + opt.Key + "' already exists")
 	}
 
-	if len(opt.Flags) == 0 {
-		return errors.New("flag not found")
-	}
 	for _, flag := range opt.Flags {
 		flagName := flag.Name
 		if len(flagName) == 0 {
@@ -65,6 +67,23 @@ func (s *OptionSet) Append(opt *Option) error {
 		flagName := flag.Name
 		s.flagOptionMap[flagName] = option
 		s.flagMap[flagName] = flag
+	}
+	if option.AcceptValue && len(option.EnvVars) > 0 {
+		for _, envVar := range option.EnvVars {
+			if len(envVar) == 0 {
+				continue
+			}
+			envValue, hasEnv := os.LookupEnv(envVar)
+			if !hasEnv || len(envValue) == 0 {
+				continue
+			}
+
+			if option.MultiValues {
+				s.keyEnvMap[option.Key] = strings.FieldsFunc(envValue, option.isDelimiter)
+			} else {
+				s.keyEnvMap[option.Key] = []string{envValue}
+			}
+		}
 	}
 	if len(option.DefaultValues) > 0 {
 		s.keyDefaultMap[option.Key] = option.DefaultValues
@@ -88,43 +107,49 @@ func (s *OptionSet) AddFlags(key string, flags []string, summary string) error {
 	})
 }
 
-func (s *OptionSet) AddFlagValue(key, flag, defaultValue, summary string) error {
+func (s *OptionSet) AddFlagValue(key, flag, envVar, defaultValue, summary string) error {
 	return s.Append(&Option{
 		Key:           key,
 		Flags:         []*Flag{NewSimpleFlag(flag)},
 		AcceptValue:   true,
+		EnvVars:       []string{envVar},
 		DefaultValues: []string{defaultValue},
 		Summary:       summary,
 	})
 }
 
-func (s *OptionSet) AddFlagValues(key, flag string, defaultValues []string, summary string) error {
+func (s *OptionSet) AddFlagValues(key, flag, envVar string, defaultValues []string, summary string) error {
 	return s.Append(&Option{
 		Key:           key,
 		Flags:         []*Flag{NewSimpleFlag(flag)},
 		AcceptValue:   true,
 		MultiValues:   true,
+		Delimiters:    defaultOptionDelimiters,
+		EnvVars:       []string{envVar},
 		DefaultValues: defaultValues,
 		Summary:       summary,
 	})
 }
 
-func (s *OptionSet) AddFlagsValue(key string, flags []string, defaultValue, summary string) error {
+func (s *OptionSet) AddFlagsValue(key string, flags []string, envVar, defaultValue, summary string) error {
 	return s.Append(&Option{
 		Key:           key,
 		Flags:         NewSimpleFlags(flags),
 		AcceptValue:   true,
+		EnvVars:       []string{envVar},
 		DefaultValues: []string{defaultValue},
 		Summary:       summary,
 	})
 }
 
-func (s *OptionSet) AddFlagsValues(key string, flags, defaultValues []string, summary string) error {
+func (s *OptionSet) AddFlagsValues(key string, flags []string, envVar string, defaultValues []string, summary string) error {
 	return s.Append(&Option{
 		Key:           key,
 		Flags:         NewSimpleFlags(flags),
 		AcceptValue:   true,
 		MultiValues:   true,
+		Delimiters:    defaultOptionDelimiters,
+		EnvVars:       []string{envVar},
 		DefaultValues: defaultValues,
 		Summary:       summary,
 	})

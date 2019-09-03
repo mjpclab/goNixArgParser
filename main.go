@@ -28,20 +28,20 @@ func AddFlags(key string, flags []string, summary string) error {
 	return CommandLine.OptionSet.AddFlags(key, flags, summary)
 }
 
-func AddFlagValue(key, flag, defaultValue, summary string) error {
-	return CommandLine.OptionSet.AddFlagValue(key, flag, defaultValue, summary)
+func AddFlagValue(key, flag, envVar, defaultValue, summary string) error {
+	return CommandLine.OptionSet.AddFlagValue(key, flag, envVar, defaultValue, summary)
 }
 
-func AddFlagValues(key, flag string, defaultValues []string, summary string) error {
-	return CommandLine.OptionSet.AddFlagValues(key, flag, defaultValues, summary)
+func AddFlagValues(key, flag, envVar string, defaultValues []string, summary string) error {
+	return CommandLine.OptionSet.AddFlagValues(key, flag, envVar, defaultValues, summary)
 }
 
-func AddFlagsValue(key string, flags []string, defaultValue, summary string) error {
-	return CommandLine.OptionSet.AddFlagsValue(key, flags, defaultValue, summary)
+func AddFlagsValue(key string, flags []string, envVar, defaultValue, summary string) error {
+	return CommandLine.OptionSet.AddFlagsValue(key, flags, envVar, defaultValue, summary)
 }
 
-func AddFlagsValues(key string, flags, defaultValues []string, summary string) error {
-	return CommandLine.OptionSet.AddFlagsValues(key, flags, defaultValues, summary)
+func AddFlagsValues(key string, flags []string, envVar string, defaultValues []string, summary string) error {
+	return CommandLine.OptionSet.AddFlagsValues(key, flags, envVar, defaultValues, summary)
 }
 
 func PrintHelp() {

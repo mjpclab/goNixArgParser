@@ -15,6 +15,7 @@ type OptionSet struct {
 	keyOptionMap  map[string]*Option
 	flagOptionMap map[string]*Option
 	flagMap       map[string]*Flag
+	keyEnvMap     map[string][]string
 	keyDefaultMap map[string][]string
 }
 
@@ -27,6 +28,7 @@ type Option struct {
 	MultiValues   bool
 	OverridePrev  bool
 	Delimiters    []rune
+	EnvVars       []string
 	DefaultValues []string
 }
 
@@ -57,6 +59,7 @@ type ParseResult struct {
 	inputs   []*Arg
 	commands []string
 	params   map[string][]string
+	envs     map[string][]string
 	defaults map[string][]string
 	rests    []string
 }
