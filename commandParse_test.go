@@ -42,7 +42,7 @@ func TestParseCommand1(t *testing.T) {
 		t.Error("commands", result.commands)
 	}
 
-	if !result.HasKey("push") {
+	if !result.HasFlagKey("push") {
 		t.Error("push")
 	}
 

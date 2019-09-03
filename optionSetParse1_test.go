@@ -139,7 +139,7 @@ func TestParse1(t *testing.T) {
 	r := s.Parse(args)
 	fmt.Printf("%+v\n", r)
 
-	if r.HasKey("deft") {
+	if r.HasFlagKey("deft") {
 		t.Error("deft")
 	}
 
@@ -159,11 +159,11 @@ func TestParse1(t *testing.T) {
 		t.Error("multi should have 4 values")
 	}
 
-	if !r.HasKey("flagX") {
+	if !r.HasFlagKey("flagX") {
 		t.Error("flagX")
 	}
 
-	if !r.HasKey("flagY") {
+	if !r.HasFlagKey("flagY") {
 		t.Error("flagY")
 	}
 

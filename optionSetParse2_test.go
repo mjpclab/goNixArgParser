@@ -75,16 +75,16 @@ func TestParse2(t *testing.T) {
 	if v, _ := parsed.GetValue("deft"); v != "myDefault" {
 		t.Error("deft")
 	}
-	if !parsed.HasKey("flag") {
+	if !parsed.HasFlagKey("flag") {
 		t.Error("flag")
 	}
-	if !parsed.HasKey("flags") {
+	if !parsed.HasFlagKey("flags") {
 		t.Error("flags")
 	}
-	if !parsed.HasKey("p") {
+	if !parsed.HasFlagKey("p") {
 		t.Error("p")
 	}
-	if !parsed.HasKey("q") {
+	if !parsed.HasFlagKey("q") {
 		t.Error("q")
 	}
 	if v, _ := parsed.GetValue("port"); v != "22" {
