@@ -9,6 +9,14 @@ import (
 
 var defaultOptionDelimiters = []rune{',', ' ', '\t', '\v', '\r', '\n'}
 
+func StringToSlice(input string) []string {
+	if len(input) == 0 {
+		return nil
+	}
+
+	return []string{input}
+}
+
 func NewOptionSet(
 	mergeOptionPrefix string,
 	restSigns []string,
@@ -112,8 +120,8 @@ func (s *OptionSet) AddFlagValue(key, flag, envVar, defaultValue, summary string
 		Key:           key,
 		Flags:         []*Flag{NewSimpleFlag(flag)},
 		AcceptValue:   true,
-		EnvVars:       []string{envVar},
-		DefaultValues: []string{defaultValue},
+		EnvVars:       StringToSlice(envVar),
+		DefaultValues: StringToSlice(defaultValue),
 		Summary:       summary,
 	})
 }
@@ -125,7 +133,7 @@ func (s *OptionSet) AddFlagValues(key, flag, envVar string, defaultValues []stri
 		AcceptValue:   true,
 		MultiValues:   true,
 		Delimiters:    defaultOptionDelimiters,
-		EnvVars:       []string{envVar},
+		EnvVars:       StringToSlice(envVar),
 		DefaultValues: defaultValues,
 		Summary:       summary,
 	})
@@ -136,8 +144,8 @@ func (s *OptionSet) AddFlagsValue(key string, flags []string, envVar, defaultVal
 		Key:           key,
 		Flags:         NewSimpleFlags(flags),
 		AcceptValue:   true,
-		EnvVars:       []string{envVar},
-		DefaultValues: []string{defaultValue},
+		EnvVars:       StringToSlice(envVar),
+		DefaultValues: StringToSlice(defaultValue),
 		Summary:       summary,
 	})
 }
@@ -149,7 +157,7 @@ func (s *OptionSet) AddFlagsValues(key string, flags []string, envVar string, de
 		AcceptValue:   true,
 		MultiValues:   true,
 		Delimiters:    defaultOptionDelimiters,
-		EnvVars:       []string{envVar},
+		EnvVars:       StringToSlice(envVar),
 		DefaultValues: defaultValues,
 		Summary:       summary,
 	})
