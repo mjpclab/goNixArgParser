@@ -1,8 +1,6 @@
 package goNixArgParser
 
-import (
-	"os"
-)
+import "os"
 
 var CommandLine *Command
 

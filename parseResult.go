@@ -76,12 +76,6 @@ func (r *ParseResult) GetValues(key string) (values []string, found bool) {
 	return
 }
 
-func (r *ParseResult) GetDefaults(key string) []string {
-	defaults := make([]string, len(r.defaults[key]))
-	copy(defaults, r.defaults[key])
-	return defaults
-}
-
 func (r *ParseResult) GetRests() []string {
 	rests := make([]string, len(r.rests))
 	copy(rests, r.rests)
