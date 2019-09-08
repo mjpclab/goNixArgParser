@@ -48,23 +48,27 @@ func _getValue(source map[string][]string, key string) (value string, found bool
 
 func (r *ParseResult) GetValue(key string) (value string, found bool) {
 	value, found = _getValue(r.params, key)
-
-	if !found {
-		value, found = _getValue(r.envs, key)
+	if found {
+		return
 	}
 
-	if !found {
-		value, found = _getValue(r.defaults, key)
+	value, found = _getValue(r.envs, key)
+	if found {
+		return
+	}
+
+	value, found = _getValue(r.defaults, key)
+	if found {
+		return
 	}
 
 	return
 }
 
 func _getValues(source map[string][]string, key string) (values []string, found bool) {
-	sourceValues, found := source[key]
+	values, found = source[key]
 	if found {
-		values = make([]string, len(sourceValues))
-		copy(values, sourceValues)
+		values = copys(values)
 		return values, true
 	}
 	return
@@ -72,13 +76,18 @@ func _getValues(source map[string][]string, key string) (values []string, found 
 
 func (r *ParseResult) GetValues(key string) (values []string, found bool) {
 	values, found = _getValues(r.params, key)
-
-	if !found {
-		values, found = _getValues(r.envs, key)
+	if found {
+		return
 	}
 
-	if !found {
-		values, found = _getValues(r.defaults, key)
+	values, found = _getValues(r.envs, key)
+	if found {
+		return
+	}
+
+	values, found = _getValues(r.defaults, key)
+	if found {
+		return
 	}
 
 	return
@@ -88,4 +97,14 @@ func (r *ParseResult) GetRests() []string {
 	rests := make([]string, len(r.rests))
 	copy(rests, r.rests)
 	return rests
+}
+
+func copys(input []string) []string {
+	if input == nil {
+		return nil
+	}
+
+	output := make([]string, len(input))
+	copy(output, input)
+	return output
 }
