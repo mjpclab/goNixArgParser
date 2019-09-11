@@ -65,7 +65,7 @@ func TestParse2(t *testing.T) {
 		"pq",
 		"--flags",
 		"--port", "22",
-		"--ports", "443", "4443",
+		"--ports", "443", "4443", "443",
 		"--ports", "4444",
 		"-f", "file1", "file2",
 		"--props", "aa", "bb", "cc", "dd", "ee",

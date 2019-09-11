@@ -129,3 +129,22 @@ func toFloat64s(input []string) ([]float64, error) {
 
 	return output, nil
 }
+
+func contains(collection []string, find string) bool {
+	for _, item := range collection {
+		if item == find {
+			return true
+		}
+	}
+	return false
+}
+
+func appendUnique(origins []string, items ...string) []string {
+	for _, item := range items {
+		if !contains(origins, item) {
+			origins = append(origins, item)
+		}
+	}
+
+	return origins
+}
