@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"errors"
 	"os"
-	"strings"
 )
 
 var defaultOptionDelimiters = []rune{',', ' ', '\t', '\v', '\r', '\n'}
@@ -104,13 +103,7 @@ func (s *OptionSet) Append(opt *Option) error {
 			}
 
 			if option.MultiValues {
-				values := strings.FieldsFunc(envValue, option.isDelimiter)
-				if option.UniqueValues {
-					uniqueValues := make([]string, 0, len(values))
-					uniqueValues = appendUnique(uniqueValues, values...)
-					values = uniqueValues
-				}
-				s.keyEnvMap[option.Key] = values
+				s.keyEnvMap[option.Key] = option.splitValues(envValue)
 			} else {
 				s.keyEnvMap[option.Key] = []string{envValue}
 			}

@@ -1,6 +1,25 @@
 package goNixArgParser
 
 ///////////////////////////////
+// set configs
+//////////////////////////////
+func (r *ParseResult) SetConfig(key, value string) {
+	r.configs[key] = []string{value}
+}
+
+func (r *ParseResult) SetConfigs(key string, values []string) {
+	var configValues []string
+
+	if opt := r.keyOptionMap[key]; opt != nil {
+		configValues = opt.filterValues(values)
+	} else {
+		configValues = copys(values)
+	}
+
+	r.configs[key] = configValues
+}
+
+///////////////////////////////
 // has xxx
 //////////////////////////////
 
@@ -22,6 +41,15 @@ func (r *ParseResult) HasEnvValue(key string) bool {
 	return len(r.envs[key]) > 0
 }
 
+func (r *ParseResult) HasConfigKey(key string) bool {
+	_, found := r.configs[key]
+	return found
+}
+
+func (r *ParseResult) HasConfigValue(key string) bool {
+	return len(r.configs[key]) > 0
+}
+
 func (r *ParseResult) HasDefaultKey(key string) bool {
 	_, found := r.defaults[key]
 	return found
@@ -32,11 +60,11 @@ func (r *ParseResult) HasDefaultValue(key string) bool {
 }
 
 func (r *ParseResult) HasKey(key string) bool {
-	return r.HasFlagKey(key) || r.HasEnvKey(key) || r.HasDefaultKey(key)
+	return r.HasFlagKey(key) || r.HasEnvKey(key) || r.HasConfigKey(key) || r.HasDefaultKey(key)
 }
 
 func (r *ParseResult) HasValue(key string) bool {
-	return r.HasFlagValue(key) || r.HasEnvValue(key) || r.HasDefaultValue(key)
+	return r.HasFlagValue(key) || r.HasEnvValue(key) || r.HasConfigValue(key) || r.HasDefaultValue(key)
 }
 
 ///////////////////////////////
@@ -50,6 +78,11 @@ func (r *ParseResult) GetString(key string) (value string, found bool) {
 	}
 
 	value, found = getValue(r.envs, key)
+	if found {
+		return
+	}
+
+	value, found = getValue(r.configs, key)
 	if found {
 		return
 	}
@@ -127,6 +160,11 @@ func (r *ParseResult) GetStrings(key string) (values []string, found bool) {
 	}
 
 	values, found = getValues(r.envs, key)
+	if found {
+		return
+	}
+
+	values, found = getValues(r.configs, key)
 	if found {
 		return
 	}

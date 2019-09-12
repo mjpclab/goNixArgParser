@@ -61,9 +61,12 @@ type Arg struct {
 }
 
 type ParseResult struct {
+	keyOptionMap map[string]*Option
+
 	commands []string
 	params   map[string][]string
 	envs     map[string][]string
+	configs  map[string][]string
 	defaults map[string][]string
 	rests    []string
 }

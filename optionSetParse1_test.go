@@ -147,6 +147,11 @@ func TestParse1(t *testing.T) {
 		t.Error("default")
 	}
 
+	r.SetConfig("deft", "cfgDefault")
+	if deftValue, _ := r.GetString("deft"); deftValue != "cfgDefault" {
+		t.Error(deftValue)
+	}
+
 	single, _ := r.GetString("single")
 	fmt.Println("single:", single)
 	if single != "false" {
@@ -156,6 +161,11 @@ func TestParse1(t *testing.T) {
 	singleBool, _ := r.GetBool("single")
 	if singleBool != false {
 		t.Error(singleBool)
+	}
+
+	r.SetConfig("single", "cfg")
+	if singleValue, _ := r.GetString("single"); singleValue != "false" {
+		t.Error(singleValue)
 	}
 
 	multi, _ := r.GetStrings("multi")
