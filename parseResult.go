@@ -232,8 +232,12 @@ func (r *ParseResult) GetFloat64s(key string) (values []float64, found bool) {
 	return
 }
 
-func (r *ParseResult) GetRests() []string {
-	rests := make([]string, len(r.rests))
-	copy(rests, r.rests)
-	return rests
+func (r *ParseResult) GetRests() (rests []string) {
+	if len(r.paramRests) > 0 {
+		return copys(r.paramRests)
+	} else if len(r.configRests) > 0 {
+		return copys(r.configRests)
+	}
+
+	return
 }

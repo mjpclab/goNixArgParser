@@ -147,13 +147,9 @@ func isValueArg(arg *Arg) bool {
 	}
 }
 
-func (s *OptionSet) Parse(initArgs []string) *ParseResult {
-	keyOptionMap := s.keyOptionMap
-	params := map[string][]string{}
-	envs := s.keyEnvMap
-	configs := map[string][]string{}
-	defaults := s.keyDefaultMap
-	rests := []string{}
+func (s *OptionSet) parseArgs(initArgs []string) (params map[string][]string, rests []string) {
+	params = map[string][]string{}
+	rests = []string{}
 
 	flagOptionMap := s.flagOptionMap
 
@@ -243,6 +239,17 @@ func (s *OptionSet) Parse(initArgs []string) *ParseResult {
 		}
 	}
 
+	return params, rests
+}
+
+func (s *OptionSet) Parse(initArgs, initConfigs []string) *ParseResult {
+	keyOptionMap := s.keyOptionMap
+
+	params, paramRests := s.parseArgs(initArgs)
+	envs := s.keyEnvMap
+	configs, configRests := s.parseArgs(initConfigs)
+	defaults := s.keyDefaultMap
+
 	return &ParseResult{
 		keyOptionMap: keyOptionMap,
 
@@ -250,6 +257,8 @@ func (s *OptionSet) Parse(initArgs []string) *ParseResult {
 		envs:     envs,
 		configs:  configs,
 		defaults: defaults,
-		rests:    rests,
+
+		paramRests:  paramRests,
+		configRests: configRests,
 	}
 }

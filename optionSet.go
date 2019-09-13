@@ -18,11 +18,11 @@ func StringToSlice(input string) []string {
 
 func NewOptionSet(
 	mergeOptionPrefix string,
-	restSigns []string,
+	restsSigns []string,
 ) *OptionSet {
 	s := &OptionSet{
 		mergeFlagPrefix: mergeOptionPrefix,
-		restSigns:       restSigns,
+		restsSigns:      restsSigns,
 		options:         []*Option{},
 		keyOptionMap:    map[string]*Option{},
 		flagOptionMap:   map[string]*Option{},
@@ -38,7 +38,7 @@ func NewSimpleOptionSet() *OptionSet {
 }
 
 func (s *OptionSet) isRestSign(input string) bool {
-	for _, sign := range s.restSigns {
+	for _, sign := range s.restsSigns {
 		if input == sign {
 			return true
 		}

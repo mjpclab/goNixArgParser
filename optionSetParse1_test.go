@@ -136,7 +136,7 @@ func TestParse1(t *testing.T) {
 		"-s", "1",
 		"--with-equal=notwork",
 	}
-	r := s.Parse(args)
+	r := s.Parse(args, nil)
 	fmt.Printf("%+v\n", r)
 
 	if r.HasFlagKey("deft") {
@@ -174,7 +174,7 @@ func TestParse1(t *testing.T) {
 		t.Error("multi should have 4 values")
 	}
 	multiInts, _ := r.GetInts("multi")
-	fmt.Println("multiInts:", multiInts);
+	fmt.Println("multiInts:", multiInts)
 	if len(multi) != 4 {
 		t.Error("multiInts should have 4 values")
 	}
@@ -197,7 +197,7 @@ func TestParse1(t *testing.T) {
 		t.Error("withConcat:", withConcat)
 	}
 
-	fmt.Println("rests:", r.rests)
+	fmt.Println("rests:", r.GetRests())
 
 	fmt.Print("fromenv: ")
 	fmt.Println(r.GetStrings("fromenv"))
