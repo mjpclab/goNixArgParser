@@ -46,9 +46,9 @@ func TestParseCommand1(t *testing.T) {
 		t.Error("push")
 	}
 
-	if result.paramRests[0] != "origin" ||
-		result.paramRests[1] != "https://github.com/mjpclab/goNixArgParser.git" {
-		t.Error("rests", result.paramRests)
+	if result.argRests[0] != "origin" ||
+		result.argRests[1] != "https://github.com/mjpclab/goNixArgParser.git" {
+		t.Error("rests", result.argRests)
 	}
 
 	cmd.PrintHelp()
@@ -64,10 +64,10 @@ func TestParseCommand2(t *testing.T) {
 		t.Error("commands", result.commands)
 	}
 
-	if result.paramRests[0] != "xxx" ||
-		result.paramRests[1] != "set-url" ||
-		result.paramRests[2] != "origin" ||
-		result.paramRests[3] != "https://github.com/mjpclab/goNixArgParser.git" {
-		t.Error("rests", result.paramRests)
+	if result.argRests[0] != "xxx" ||
+		result.argRests[1] != "set-url" ||
+		result.argRests[2] != "origin" ||
+		result.argRests[3] != "https://github.com/mjpclab/goNixArgParser.git" {
+		t.Error("rests", result.argRests)
 	}
 }

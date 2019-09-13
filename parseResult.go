@@ -24,12 +24,12 @@ func (r *ParseResult) SetConfigs(key string, values []string) {
 //////////////////////////////
 
 func (r *ParseResult) HasFlagKey(key string) bool {
-	_, found := r.params[key]
+	_, found := r.args[key]
 	return found
 }
 
 func (r *ParseResult) HasFlagValue(key string) bool {
-	return len(r.params[key]) > 0
+	return len(r.args[key]) > 0
 }
 
 func (r *ParseResult) HasEnvKey(key string) bool {
@@ -72,7 +72,7 @@ func (r *ParseResult) HasValue(key string) bool {
 //////////////////////////////
 
 func (r *ParseResult) GetString(key string) (value string, found bool) {
-	value, found = getValue(r.params, key)
+	value, found = getValue(r.args, key)
 	if found {
 		return
 	}
@@ -154,7 +154,7 @@ func (r *ParseResult) GetFloat64(key string) (value float64, found bool) {
 // get multi values
 //////////////////////////////
 func (r *ParseResult) GetStrings(key string) (values []string, found bool) {
-	values, found = getValues(r.params, key)
+	values, found = getValues(r.args, key)
 	if found {
 		return
 	}
@@ -233,8 +233,8 @@ func (r *ParseResult) GetFloat64s(key string) (values []float64, found bool) {
 }
 
 func (r *ParseResult) GetRests() (rests []string) {
-	if len(r.paramRests) > 0 {
-		return copys(r.paramRests)
+	if len(r.argRests) > 0 {
+		return copys(r.argRests)
 	} else if len(r.configRests) > 0 {
 		return copys(r.configRests)
 	}
