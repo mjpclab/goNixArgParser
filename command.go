@@ -13,7 +13,7 @@ func NewCommand(
 	return &Command{
 		Name:        name,
 		Summary:     summary,
-		OptionSet:   NewOptionSet(mergeOptionPrefix, restsSigns, groupSeps),
+		Options:     NewOptionSet(mergeOptionPrefix, restsSigns, groupSeps),
 		SubCommands: []*Command{},
 	}
 }
@@ -22,7 +22,7 @@ func NewSimpleCommand(name, summary string) *Command {
 	return &Command{
 		Name:        name,
 		Summary:     summary,
-		OptionSet:   NewSimpleOptionSet(),
+		Options:     NewSimpleOptionSet(),
 		SubCommands: []*Command{},
 	}
 }
@@ -106,7 +106,7 @@ func (c *Command) splitCommandsArgs(initArgs, initConfigs []string) (
 
 func (c *Command) Parse(initArgs, initConfigs []string) *ParseResult {
 	leafCmd, commands, optionSetInitArgs, optionSetInitConfigs := c.splitCommandsArgs(initArgs, initConfigs)
-	result := leafCmd.OptionSet.Parse(optionSetInitArgs, optionSetInitConfigs)
+	result := leafCmd.Options.Parse(optionSetInitArgs, optionSetInitConfigs)
 	result.commands = commands
 
 	return result
@@ -116,10 +116,10 @@ func (c *Command) ParseGroups(initArgs, initConfigs []string) (results []*ParseR
 	leafCmd, commands, optionSetInitArgs, optionSetInitConfigs := c.splitCommandsArgs(initArgs, initConfigs)
 
 	if len(optionSetInitArgs) == 0 && len(optionSetInitConfigs) == 0 {
-		result := leafCmd.OptionSet.Parse(optionSetInitArgs, optionSetInitConfigs)
+		result := leafCmd.Options.Parse(optionSetInitArgs, optionSetInitConfigs)
 		results = append(results, result)
 	} else {
-		results = leafCmd.OptionSet.ParseGroups(optionSetInitArgs, optionSetInitConfigs)
+		results = leafCmd.Options.ParseGroups(optionSetInitArgs, optionSetInitConfigs)
 	}
 
 	for _, result := range results {
@@ -145,7 +145,7 @@ func (c *Command) GetHelp() []byte {
 		buffer.WriteString("Usage:\n")
 	}
 
-	optionsHelp := c.OptionSet.GetHelp()
+	optionsHelp := c.Options.GetHelp()
 	if len(optionsHelp) > 0 {
 		buffer.WriteString("\nOptions:\n\n")
 		buffer.Write(optionsHelp)
