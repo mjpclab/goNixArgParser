@@ -8,17 +8,17 @@ import (
 func getGitCommand() *Command {
 	cmdGit := NewSimpleCommand("git", "A version control tool")
 
-	cmdGit.Options.AddFlag("version", "--version", "", "display version")
-	cmdGit.Options.AddFlag("help", "--help", "", "show git help")
+	cmdGit.options.AddFlag("version", "--version", "", "display version")
+	cmdGit.options.AddFlag("help", "--help", "", "show git help")
 
 	cmdSetUrl := cmdGit.NewSimpleSubCommand("remote", "manage remotes").NewSimpleSubCommand("set-url", "set remote url")
-	cmdSetUrl.Options.AddFlag("push", "--push", "", "")
-	cmdSetUrl.Options.AddFlagValue("dummy", "--dummy", "", "", "dummy option")
+	cmdSetUrl.options.AddFlag("push", "--push", "", "")
+	cmdSetUrl.options.AddFlagValue("dummy", "--dummy", "", "", "dummy option")
 
 	cmdReset := cmdGit.NewSimpleSubCommand("reset", "reset command")
-	cmdReset.Options.AddFlag("hard", "--hard", "", "hard reset")
-	cmdReset.Options.AddFlag("mixed", "--mixed", "", "mixed reset")
-	cmdReset.Options.AddFlag("soft", "--soft", "", "soft reset")
+	cmdReset.options.AddFlag("hard", "--hard", "", "hard reset")
+	cmdReset.options.AddFlag("mixed", "--mixed", "", "mixed reset")
+	cmdReset.options.AddFlag("soft", "--soft", "", "soft reset")
 
 	return cmdGit
 }

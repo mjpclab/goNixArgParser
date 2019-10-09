@@ -1,10 +1,10 @@
 package goNixArgParser
 
 type Command struct {
-	Name        string
-	Summary     string
-	Options     *OptionSet
-	SubCommands []*Command
+	name        string
+	summary     string
+	options     *OptionSet
+	subCommands []*Command
 }
 
 type OptionSet struct {
