@@ -7,11 +7,20 @@ import (
 func TestParse3(t *testing.T) {
 	var err error
 
-	s := NewOptionSet("", nil, []string{",,"})
+	s := NewOptionSet("-", nil, []string{",,"})
+
+	err = s.Append(&Option{
+		Key:         "bool",
+		Flags:       []*Flag{{Name: "-b", canMerge: true}, {Name: "--bool"}},
+		AcceptValue: false,
+	})
+	if err != nil {
+		t.Error(err)
+	}
 
 	err = s.Append(&Option{
 		Key:         "port",
-		Flags:       []*Flag{{Name: "-p"}, {Name: "--port"}},
+		Flags:       []*Flag{{Name: "-p", canMerge: true, canEqualAssign:true}, {Name: "--port"}},
 		AcceptValue: true,
 	})
 	if err != nil {
@@ -64,5 +73,16 @@ func TestParse3(t *testing.T) {
 	root2, _ := parsed2.GetString("root")
 	if root2 != "/data/443" {
 		t.Error(root2)
+	}
+
+	args = []string{"-bp=8080"}
+	result := s.Parse(args, nil)
+	if !result.HasKey("bool") {
+		t.Error("bool")
+	}
+
+	port, _ := result.GetString("port")
+	if port != "8080" {
+		t.Error(port)
 	}
 }

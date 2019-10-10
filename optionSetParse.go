@@ -14,15 +14,24 @@ func (s *OptionSet) splitMergedArg(arg *Arg) (args []*Arg, success bool) {
 		return
 	}
 
+	if flagMap[argText] != nil {
+		return
+	}
+
 	mergedArgs := argText[len(s.mergeFlagPrefix):]
 	splittedArgs := make([]*Arg, 0, len(mergedArgs))
-	for _, mergedArg := range mergedArgs {
+	for i, mergedArg := range mergedArgs {
 		splittedArg := s.mergeFlagPrefix + string(mergedArg)
 		flag := flagMap[splittedArg]
 		if flag == nil || !flag.canMerge {
 			return
 		}
 		splittedArgs = append(splittedArgs, NewArg(splittedArg, FlagArg))
+
+		if flag.canEqualAssign && i < len(mergedArgs)-1 && mergedArgs[i+1] == '=' {
+			splittedArgs = append(splittedArgs, NewArg(mergedArgs[i+2:], ValueArg))
+			break
+		}
 	}
 
 	return splittedArgs, true
