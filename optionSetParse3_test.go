@@ -20,7 +20,7 @@ func TestParse3(t *testing.T) {
 
 	err = s.Append(&Option{
 		Key:         "port",
-		Flags:       []*Flag{{Name: "-p", canMerge: true, canEqualAssign:true}, {Name: "--port"}},
+		Flags:       []*Flag{{Name: "-p", canMerge: true, canEqualAssign: true, canFollowAssign: true}, {Name: "--port", canFollowAssign: true}},
 		AcceptValue: true,
 	})
 	if err != nil {
@@ -29,7 +29,7 @@ func TestParse3(t *testing.T) {
 
 	err = s.Append(&Option{
 		Key:         "root",
-		Flags:       []*Flag{{Name: "-r"}, {Name: "--root"}},
+		Flags:       []*Flag{{Name: "-r"}, {Name: "--root", canFollowAssign: true}},
 		AcceptValue: true,
 	})
 	if err != nil {
@@ -46,11 +46,13 @@ func TestParse3(t *testing.T) {
 		"--root", "/data/80",
 	}
 
+	// groups
 	parsedGroups := s.ParseGroups(args, configs)
 	if len(parsedGroups) != 2 {
 		t.Fatal(len(parsedGroups))
 	}
 
+	// groups - group 1
 	parsed1 := parsedGroups[0]
 
 	port1, _ := parsed1.GetString("port")
@@ -63,6 +65,7 @@ func TestParse3(t *testing.T) {
 		t.Error(root1)
 	}
 
+	// groups - group 2
 	parsed2 := parsedGroups[1]
 
 	port2, _ := parsed2.GetString("port")
@@ -75,6 +78,7 @@ func TestParse3(t *testing.T) {
 		t.Error(root2)
 	}
 
+	// merge & equal assign
 	args = []string{"-bp=8080"}
 	result := s.Parse(args, nil)
 	if !result.HasKey("bool") {

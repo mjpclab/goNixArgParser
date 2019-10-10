@@ -42,6 +42,7 @@ type Option struct {
 type Flag struct {
 	Name            string
 	canMerge        bool
+	canFollowAssign bool
 	canEqualAssign  bool
 	canConcatAssign bool
 }

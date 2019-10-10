@@ -127,10 +127,12 @@ func (s *OptionSet) splitConcatAssignArgs(initArgs []*Arg) []*Arg {
 	return args
 }
 
-func isValueArg(arg *Arg) bool {
+func isValueArg(flag *Flag, arg *Arg) bool {
 	switch arg.Type {
-	case ValueArg, UnknownArg:
+	case ValueArg:
 		return true
+	case UnknownArg:
+		return flag.canFollowAssign
 	default:
 		return false
 	}
@@ -141,6 +143,7 @@ func (s *OptionSet) parseArgsInGroup(argObjs []*Arg) (args map[string][]string, 
 	rests = []string{}
 
 	flagOptionMap := s.flagOptionMap
+	flagMap := s.flagMap
 
 	if s.hasCanMerge {
 		argObjs = s.splitMergedArgs(argObjs)
@@ -169,6 +172,7 @@ func (s *OptionSet) parseArgsInGroup(argObjs []*Arg) (args map[string][]string, 
 		}
 
 		opt := flagOptionMap[arg.Text]
+		flag := flagMap[arg.Text]
 
 		if !opt.AcceptValue { // option has no value
 			args[opt.Key] = []string{}
@@ -176,7 +180,7 @@ func (s *OptionSet) parseArgsInGroup(argObjs []*Arg) (args map[string][]string, 
 		}
 
 		if !opt.MultiValues { // option has 1 value
-			if i == argCount-1 || !isValueArg(argObjs[i+1]) { // no more value
+			if i == argCount-1 || !isValueArg(flag, argObjs[i+1]) { // no more value
 				if opt.OverridePrev || args[opt.Key] == nil {
 					args[opt.Key] = []string{}
 				}
@@ -198,7 +202,7 @@ func (s *OptionSet) parseArgsInGroup(argObjs []*Arg) (args map[string][]string, 
 				break
 			}
 
-			if !isValueArg(argObjs[i+peeked+1]) { // no more value
+			if !isValueArg(flag, argObjs[i+peeked+1]) { // no more value
 				break
 			}
 
