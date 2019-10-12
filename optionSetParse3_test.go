@@ -40,6 +40,7 @@ func TestParse3(t *testing.T) {
 		"-p", "80",
 		",,",
 		"--port", "443", "--root", "/data/443",
+		",,",
 	}
 
 	configs := []string{
@@ -48,8 +49,8 @@ func TestParse3(t *testing.T) {
 
 	// groups
 	parsedGroups := s.ParseGroups(args, configs)
-	if len(parsedGroups) != 2 {
-		t.Fatal(len(parsedGroups))
+	if len(parsedGroups) != 3 {
+		t.Error("parsed group count:", len(parsedGroups))
 	}
 
 	// groups - group 1

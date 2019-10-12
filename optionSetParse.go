@@ -290,10 +290,8 @@ func splitArgsIntoGroups(argObjs []*Arg) [][]*Arg {
 			continue
 		}
 
-		if len(items) > 0 {
-			groups = append(groups, items)
-			items = []*Arg{}
-		}
+		groups = append(groups, items)
+		items = []*Arg{}
 	}
 
 	return groups
