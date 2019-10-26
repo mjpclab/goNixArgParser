@@ -227,8 +227,8 @@ Specify if treat args that follow after a flag as option values. Example for fol
 ls --hide '*.go'
 ```
 
-### `canEqualAssign`
-Specify if can use equal sign `=` to assign value to the flag. Example for equal assign:
+### `assignSigns`
+Specify symbols (e.g `=`) as assign symbols, separate value to its flag. Example for `=` assign:
 ```bash
 ls --hide='*.go'
 ```
@@ -282,7 +282,7 @@ type Option struct {
 ## Creating Custom Flag Schema
 `Option.Flags` is a slice of `*Flag`, Some useful functions to create them:
 ```go
-func NewFlag(name string, canMerge, canFollowAssign, canEqualAssign, canConcatAssign bool) *Flag
+func NewFlag(name string, canMerge, canFollowAssign, canConcatAssign bool, assignSigns []string) *Flag
 func NewSimpleFlag(name string) *Flag
 func NewSimpleFlags(names []string) []*Flag
 ```
