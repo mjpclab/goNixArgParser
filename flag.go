@@ -14,13 +14,14 @@ func NewSimpleFlag(name string) *Flag {
 	isSingleChar := len(name) == 1 || (len(name) == 2 && name[0] == '-')
 
 	canMerge := isSingleChar
+	canConcatAssign := isSingleChar
 
 	assignSigns := make([]string, 0, 1)
 	if !isSingleChar {
 		assignSigns = append(assignSigns, "=")
 	}
 
-	return NewFlag(name, canMerge, true, false, assignSigns)
+	return NewFlag(name, canMerge, true, canConcatAssign, assignSigns)
 }
 
 func NewSimpleFlags(names []string) []*Flag {
