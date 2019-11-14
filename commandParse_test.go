@@ -11,7 +11,8 @@ func getGitCommand() *Command {
 	cmdGit.options.AddFlag("version", "--version", "", "display version")
 	cmdGit.options.AddFlag("help", "--help", "", "show git help")
 
-	cmdSetUrl := cmdGit.NewSimpleSubCommand("remote", "manage remotes").NewSimpleSubCommand("set-url", "set remote url")
+	cmdRemote := cmdGit.NewSimpleSubCommand("remote", "manage remotes", "rmt", "rt")
+	cmdSetUrl := cmdRemote.NewSimpleSubCommand("set-url", "set remote url")
 	cmdSetUrl.options.AddFlag("push", "--push", "", "")
 	cmdSetUrl.options.AddFlagValue("dummy", "--dummy", "", "", "dummy option")
 
@@ -25,7 +26,7 @@ func getGitCommand() *Command {
 
 func TestNormalizeCmdArgs(t *testing.T) {
 	cmd := getGitCommand()
-	args := []string{"git", "remote", "set-url", "--push", "origin", "https://github.com/mjpclab/goNixArgParser.git"}
+	args := []string{"git", "rmt", "set-url", "--push", "origin", "https://github.com/mjpclab/goNixArgParser.git"}
 	_, normalizedArgs := cmd.getNormalizedArgs(args)
 	for i, arg := range normalizedArgs {
 		fmt.Printf("%d %+v\n", i, arg)
@@ -34,7 +35,7 @@ func TestNormalizeCmdArgs(t *testing.T) {
 
 func TestParseCommand1(t *testing.T) {
 	cmd := getGitCommand()
-	args := []string{"git", "remote", "set-url", "--push", "origin", "https://github.com/mjpclab/goNixArgParser.git"}
+	args := []string{"git", "rmt", "set-url", "--push", "origin", "https://github.com/mjpclab/goNixArgParser.git"}
 
 	result := cmd.Parse(args, nil)
 	if result.commands[0] != "git" ||
@@ -75,8 +76,8 @@ func TestParseCommand2(t *testing.T) {
 
 func TestParseCommand3(t *testing.T) {
 	cmd := getGitCommand()
-	args := []string{"git", "remote", "set-url", "origin", "https://github.com/mjpclab/goNixArgParser.git"}
-	configArgs := []string{"git", "remote", "set-url", "--dummy", "dummyconfigvalue"}
+	args := []string{"git", "rmt", "set-url", "origin", "https://github.com/mjpclab/goNixArgParser.git"}
+	configArgs := []string{"git", "rt", "set-url", "--dummy", "dummyconfigvalue"}
 	result := cmd.Parse(args, configArgs)
 
 	dummy, _ := result.GetString("dummy")

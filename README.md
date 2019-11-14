@@ -30,6 +30,12 @@ cmdRemote := cmdGit.NewSimpleSubCommand("remote", "manage remotes")
 cmdAdd := cmdRemote.NewSimpleSubCommand("add", "add a remote repository")
 ```
 
+Command alias names can be specified as additional arguments:
+```go
+// "co" and "ckout" are alias names of "checkout" command
+cmdCheckout := cmdGit.NewSimpleSubCommand("checkout", "checkout branches or files", "co", "ckout")
+```
+
 ## Options
 Here we want to define options on `cmdAdd` for `git remote add`. But if no sub command is needed, then just define them on root Command.
 
@@ -245,7 +251,8 @@ mysql -u root
 Use `NewCommand` to create a customized Command, instead of `NewSimpleCommand`:
 ```go
 func NewCommand(
-	name, summary, mergeFlagPrefix string,
+	names []string,
+	summary, mergeFlagPrefix string,
 	restsSigns, groupSeps []string,
 ) *Command
 ```
@@ -253,7 +260,8 @@ func NewCommand(
 Similarly, use `NewSubCommand` instead of `NewSimpleSubCommand` to create a sub command:
 ```go
 func (c *Command) NewSubCommand(
-	name, summary, mergeFlagPrefix string,
+	names []string,
+	summary, mergeFlagPrefix string,
 	restsSigns, groupSeps []string,
 ) *Command
 ```
