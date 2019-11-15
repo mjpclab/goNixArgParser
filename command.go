@@ -126,9 +126,6 @@ func (c *Command) splitCommandsArgs(initArgs, initConfigs []string) (
 
 	commands = []string{}
 	for _, arg := range argCmds {
-		if arg.Type != CommandArg {
-			break
-		}
 		commands = append(commands, arg.Text)
 	}
 
