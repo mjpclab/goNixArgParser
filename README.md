@@ -75,6 +75,8 @@ There are several methods on parsed result to get final values:
 - `GetUint64s(key string) (values []uint64, found bool)`
 - `GetFloat64s(key string) (values []float64, found bool)`
 - `GetRests() (rests []string)`
+- `HasUndef() bool`
+- `GetUndefs() []string`
 
 Getting value for the example above:
 ```go
@@ -185,6 +187,10 @@ Here `--` is a rests sign. It can be specified by other values when initializing
 ### `groupSeps`
 `groupSeps` is the separator to split "Arg Groups". Can be customized when initializing an OptionSet.
 
+### `undefFlagPrefixes`
+If an argument is not a flag, and begin with one of the `undefFlagPrefixes`, treat it as an undefined flag.
+Otherwise treat this argument as previous flag's value or rests value.
+
 ## Option struct
 `Option` represents an individual option. Some initial parameter:
 
@@ -253,7 +259,7 @@ Use `NewCommand` to create a customized Command, instead of `NewSimpleCommand`:
 func NewCommand(
 	names []string,
 	summary, mergeFlagPrefix string,
-	restsSigns, groupSeps []string,
+	restsSigns, groupSeps, undefFlagPrefixes []string,
 ) *Command
 ```
 
@@ -262,7 +268,7 @@ Similarly, use `NewSubCommand` instead of `NewSimpleSubCommand` to create a sub 
 func (c *Command) NewSubCommand(
 	names []string,
 	summary, mergeFlagPrefix string,
-	restsSigns, groupSeps []string,
+	restsSigns, groupSeps, undefFlagPrefixes []string,
 ) *Command
 ```
 

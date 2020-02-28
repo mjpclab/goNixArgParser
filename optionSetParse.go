@@ -149,6 +149,22 @@ func (s *OptionSet) splitConcatAssignArgs(initArgs []*Arg) []*Arg {
 	return args
 }
 
+func (s *OptionSet) markUndefArgsValues(args []*Arg) {
+	foundUndefFlag := false
+	for _, arg := range args {
+		if arg.Type != UndetermArg {
+			foundUndefFlag = false
+			continue
+		}
+		if s.isUdefFlag(arg.Text) {
+			arg.Type = UndefFlagArg
+			foundUndefFlag = true
+		} else if foundUndefFlag {
+			arg.Type = UndefFlagValueArg
+		}
+	}
+}
+
 func isValueArg(flag *Flag, arg *Arg) bool {
 	switch arg.Type {
 	case ValueArg:
@@ -160,9 +176,10 @@ func isValueArg(flag *Flag, arg *Arg) bool {
 	}
 }
 
-func (s *OptionSet) parseArgsInGroup(argObjs []*Arg) (args map[string][]string, rests []string) {
+func (s *OptionSet) parseArgsInGroup(argObjs []*Arg) (args map[string][]string, rests, undefs []string) {
 	args = map[string][]string{}
 	rests = []string{}
+	undefs = []string{}
 
 	flagOptionMap := s.flagOptionMap
 	flagMap := s.flagMap
@@ -177,10 +194,13 @@ func (s *OptionSet) parseArgsInGroup(argObjs []*Arg) (args map[string][]string, 
 		argObjs = s.splitConcatAssignArgs(argObjs)
 	}
 
+	s.markUndefArgsValues(argObjs)
+
 	// walk
 	for i, argCount, peeked := 0, len(argObjs), 0; i < argCount; i, peeked = i+1+peeked, 0 {
 		arg := argObjs[i]
 
+		// rests
 		if arg.Type == RestSignArg {
 			continue
 		}
@@ -193,6 +213,17 @@ func (s *OptionSet) parseArgsInGroup(argObjs []*Arg) (args map[string][]string, 
 			continue
 		}
 
+		// undefs
+		if arg.Type == UndefFlagValueArg {
+			continue
+		}
+
+		if arg.Type == UndefFlagArg {
+			undefs = append(undefs, arg.Text)
+			continue
+		}
+
+		// normal
 		opt := flagOptionMap[arg.Text]
 		flag := flagMap[arg.Text]
 
@@ -253,15 +284,15 @@ func (s *OptionSet) parseArgsInGroup(argObjs []*Arg) (args map[string][]string, 
 		}
 	}
 
-	return args, rests
+	return args, rests, undefs
 }
 
 func (s *OptionSet) parseInGroup(argObjs, configObjs []*Arg) *ParseResult {
 	keyOptionMap := s.keyOptionMap
 
-	args, argRests := s.parseArgsInGroup(argObjs)
+	args, argRests, argUndefs := s.parseArgsInGroup(argObjs)
 	envs := s.keyEnvMap
-	configs, configRests := s.parseArgsInGroup(configObjs)
+	configs, configRests, configUndefs := s.parseArgsInGroup(configObjs)
 	defaults := s.keyDefaultMap
 
 	return &ParseResult{
@@ -274,6 +305,9 @@ func (s *OptionSet) parseInGroup(argObjs, configObjs []*Arg) *ParseResult {
 
 		argRests:    argRests,
 		configRests: configRests,
+
+		argUndefs:    argUndefs,
+		configUndefs: configUndefs,
 	}
 }
 
