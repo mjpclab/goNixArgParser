@@ -9,7 +9,7 @@ func (s *OptionSet) splitMergedArg(arg *Arg) (args []*Arg, success bool) {
 	optionMap := s.flagOptionMap
 	argText := arg.Text
 
-	if arg.Type != UnknownArg ||
+	if arg.Type != UndetermArg ||
 		len(argText) <= len(s.mergeFlagPrefix) ||
 		!strings.HasPrefix(argText, s.mergeFlagPrefix) {
 		return
@@ -49,7 +49,7 @@ func (s *OptionSet) splitMergedArg(arg *Arg) (args []*Arg, success bool) {
 		}
 
 		// re-generate standalone flag with values
-		splittedArgs[len(splittedArgs)-1] = NewArg(prevFlag.Name+mergedArgs[i:], UnknownArg)
+		splittedArgs[len(splittedArgs)-1] = NewArg(prevFlag.Name+mergedArgs[i:], UndetermArg)
 		break
 	}
 
@@ -72,7 +72,7 @@ func (s *OptionSet) splitMergedArgs(initArgs []*Arg) []*Arg {
 func (s *OptionSet) splitAssignSignArg(arg *Arg) (args []*Arg) {
 	args = make([]*Arg, 0, 2)
 
-	if arg.Type != UnknownArg {
+	if arg.Type != UndetermArg {
 		args = append(args, arg)
 		return
 	}
@@ -115,7 +115,7 @@ func (s *OptionSet) splitAssignSignArgs(initArgs []*Arg) []*Arg {
 func (s *OptionSet) splitConcatAssignArg(arg *Arg) (args []*Arg) {
 	args = make([]*Arg, 0, 2)
 
-	if arg.Type != UnknownArg {
+	if arg.Type != UndetermArg {
 		args = append(args, arg)
 		return
 	}
@@ -153,7 +153,7 @@ func isValueArg(flag *Flag, arg *Arg) bool {
 	switch arg.Type {
 	case ValueArg:
 		return true
-	case UnknownArg:
+	case UndetermArg:
 		return flag.canFollowAssign
 	default:
 		return false
@@ -185,7 +185,7 @@ func (s *OptionSet) parseArgsInGroup(argObjs []*Arg) (args map[string][]string, 
 			continue
 		}
 
-		if arg.Type == UnknownArg {
+		if arg.Type == UndetermArg {
 			arg.Type = RestArg
 		}
 		if arg.Type == RestArg {
@@ -294,7 +294,7 @@ func (s *OptionSet) getNormalizedArgs(initArgs []string) []*Arg {
 		case s.flagMap[arg] != nil:
 			args = append(args, NewArg(arg, FlagArg))
 		default:
-			args = append(args, NewArg(arg, UnknownArg))
+			args = append(args, NewArg(arg, UndetermArg))
 		}
 	}
 

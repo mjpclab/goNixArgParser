@@ -50,7 +50,7 @@ type Flag struct {
 type ArgType int
 
 const (
-	UnknownArg ArgType = iota
+	UndetermArg ArgType = iota
 	CommandArg
 	FlagArg
 	ValueArg
