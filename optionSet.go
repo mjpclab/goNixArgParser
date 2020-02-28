@@ -63,7 +63,7 @@ func (s *OptionSet) isRestSign(input string) bool {
 	return false
 }
 
-func (s *OptionSet) isGroupSeps(input string) bool {
+func (s *OptionSet) isGroupSep(input string) bool {
 	for _, sep := range s.groupSeps {
 		if input == sep {
 			return true

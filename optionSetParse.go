@@ -283,7 +283,7 @@ func (s *OptionSet) getNormalizedArgs(initArgs []string) []*Arg {
 	foundRestSign := false
 	for _, arg := range initArgs {
 		switch {
-		case s.isGroupSeps(arg):
+		case s.isGroupSep(arg):
 			foundRestSign = false
 			args = append(args, NewArg(arg, GroupSepArg))
 		case foundRestSign:
