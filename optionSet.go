@@ -90,7 +90,7 @@ func (s *OptionSet) isUdefFlag(input string) bool {
 	return false
 }
 
-func (s *OptionSet) Append(opt *Option) error {
+func (s *OptionSet) Append(opt Option) error {
 	// verify
 	if len(opt.Key) == 0 {
 		return errors.New("key is empty")
@@ -109,9 +109,7 @@ func (s *OptionSet) Append(opt *Option) error {
 		}
 	}
 
-	// copy
-	optCopied := *opt
-	option := &optCopied
+	option := &opt
 
 	// append
 	s.options = append(s.options, option)
@@ -161,7 +159,7 @@ func (s *OptionSet) Append(opt *Option) error {
 }
 
 func (s *OptionSet) AddFlag(key, flag, envVar, summary string) error {
-	return s.Append(&Option{
+	return s.Append(Option{
 		Key:     key,
 		Flags:   []*Flag{NewSimpleFlag(flag)},
 		EnvVars: StringToSlice(envVar),
@@ -170,7 +168,7 @@ func (s *OptionSet) AddFlag(key, flag, envVar, summary string) error {
 }
 
 func (s *OptionSet) AddFlags(key string, flags []string, envVar, summary string) error {
-	return s.Append(&Option{
+	return s.Append(Option{
 		Key:     key,
 		Flags:   NewSimpleFlags(flags),
 		EnvVars: StringToSlice(envVar),
@@ -179,7 +177,7 @@ func (s *OptionSet) AddFlags(key string, flags []string, envVar, summary string)
 }
 
 func (s *OptionSet) AddFlagValue(key, flag, envVar, defaultValue, summary string) error {
-	return s.Append(&Option{
+	return s.Append(Option{
 		Key:           key,
 		Flags:         []*Flag{NewSimpleFlag(flag)},
 		AcceptValue:   true,
@@ -191,7 +189,7 @@ func (s *OptionSet) AddFlagValue(key, flag, envVar, defaultValue, summary string
 }
 
 func (s *OptionSet) AddFlagValues(key, flag, envVar string, defaultValues []string, summary string) error {
-	return s.Append(&Option{
+	return s.Append(Option{
 		Key:           key,
 		Flags:         []*Flag{NewSimpleFlag(flag)},
 		AcceptValue:   true,
@@ -205,7 +203,7 @@ func (s *OptionSet) AddFlagValues(key, flag, envVar string, defaultValues []stri
 }
 
 func (s *OptionSet) AddFlagsValue(key string, flags []string, envVar, defaultValue, summary string) error {
-	return s.Append(&Option{
+	return s.Append(Option{
 		Key:           key,
 		Flags:         NewSimpleFlags(flags),
 		AcceptValue:   true,
@@ -217,7 +215,7 @@ func (s *OptionSet) AddFlagsValue(key string, flags []string, envVar, defaultVal
 }
 
 func (s *OptionSet) AddFlagsValues(key string, flags []string, envVar string, defaultValues []string, summary string) error {
-	return s.Append(&Option{
+	return s.Append(Option{
 		Key:           key,
 		Flags:         NewSimpleFlags(flags),
 		AcceptValue:   true,
