@@ -7,8 +7,6 @@ import (
 	"strings"
 )
 
-var defaultOptionDelimiters = []rune{',', ' ', '\t', '\v', '\r', '\n'}
-
 func StringToSlice(input string) []string {
 	if len(input) == 0 {
 		return nil
@@ -194,7 +192,6 @@ func (s *OptionSet) AddFlagValues(key, flag, envVar string, defaultValues []stri
 		Flags:         []*Flag{NewSimpleFlag(flag)},
 		AcceptValue:   true,
 		MultiValues:   true,
-		Delimiters:    defaultOptionDelimiters,
 		UniqueValues:  true,
 		EnvVars:       StringToSlice(envVar),
 		DefaultValues: defaultValues,
@@ -220,7 +217,6 @@ func (s *OptionSet) AddFlagsValues(key string, flags []string, envVar string, de
 		Flags:         NewSimpleFlags(flags),
 		AcceptValue:   true,
 		MultiValues:   true,
-		Delimiters:    defaultOptionDelimiters,
 		UniqueValues:  true,
 		EnvVars:       StringToSlice(envVar),
 		DefaultValues: defaultValues,
