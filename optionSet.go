@@ -88,6 +88,32 @@ func (s *OptionSet) isUdefFlag(input string) bool {
 	return false
 }
 
+func (s *OptionSet) findFlagByPrefix(prefix string) (flag *Flag, ambiguous bool) {
+	if !s.hasPrefixMatch {
+		return
+	}
+
+	prefixLen := len(prefix)
+	if prefixLen == 0 {
+		return
+	}
+
+	var matched *Flag
+
+	for _, opt := range s.options {
+		for _, flag := range opt.Flags {
+			if prefixLen >= flag.prefixMatchLen && strings.HasPrefix(flag.Name, prefix) {
+				if matched != nil { // found more than 1 match, not unique match
+					return nil, true
+				}
+				matched = flag
+			}
+		}
+	}
+
+	return matched, false
+}
+
 func (s *OptionSet) Append(opt Option) error {
 	// verify
 	if len(opt.Key) == 0 {
@@ -123,6 +149,9 @@ func (s *OptionSet) Append(opt Option) error {
 		}
 		if len(flag.assignSigns) > 0 {
 			s.hasAssignSigns = true
+		}
+		if flag.prefixMatchLen > 0 {
+			s.hasPrefixMatch = true
 		}
 
 		flagName := flag.Name

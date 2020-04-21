@@ -197,6 +197,7 @@ func TestParse1(t *testing.T) {
 		t.Error("withConcat:", withConcat)
 	}
 
+	// undefs: [-un1 --without-equal=bcdef -Wcannotconcat]
 	if undefs := r.GetUndefs(); len(undefs) != 3 {
 		t.Error("undefs:", undefs)
 	}

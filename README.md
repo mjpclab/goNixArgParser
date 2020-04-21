@@ -75,6 +75,8 @@ There are several methods on parsed result to get final values:
 - `GetUint64s(key string) (values []uint64, found bool)`
 - `GetFloat64s(key string) (values []float64, found bool)`
 - `GetRests() (rests []string)`
+- `HasAmbigu() bool`
+- `GetAmbigus() []string`
 - `HasUndef() bool`
 - `GetUndefs() []string`
 
@@ -232,6 +234,10 @@ Name of the flag, e.g. `--option-name`.
 
 ### `canMerge`
 Specify if this flag can be merged with others when the name starts with option's `mergeFlagPrefix` and suffix has only 1 character.
+
+### `prefixMatchLen`
+Specify if can use at least `prefixMatchLen` chars to figure out unique flag instead of full name.
+if value is `0`, prefix match is disabled.
 
 ### `canFollowAssign`
 Specify if treat args that follow after a flag as option values. Example for follow assign:

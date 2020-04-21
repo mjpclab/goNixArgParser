@@ -59,7 +59,7 @@ func TestParse2(t *testing.T) {
 		Key:         "props",
 		Summary:     "properties",
 		Description: "single description",
-		Flags:       []*Flag{NewSimpleFlag("-p"), NewFlag("--props", false, true, true, []string{"="})},
+		Flags:       []*Flag{NewSimpleFlag("-p"), NewFlag("--props", 0, false, true, true, []string{"="})},
 		AcceptValue: true,
 		MultiValues: true,
 	})

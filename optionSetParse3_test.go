@@ -36,10 +36,30 @@ func TestParse3(t *testing.T) {
 		t.Error(err)
 	}
 
+	err = s.Append(Option{
+		Key:         "username",
+		Flags:       []*Flag{{Name: "--username", prefixMatchLen: 1, canFollowAssign: true}},
+		AcceptValue: true,
+	})
+	if err != nil {
+		t.Error(err)
+	}
+
+	err = s.Append(Option{
+		Key:         "password",
+		Flags:       []*Flag{{Name: "--password", prefixMatchLen: 1, assignSigns: []string{"="}}},
+		AcceptValue: true,
+	})
+	if err != nil {
+		t.Error(err)
+	}
+
 	args := []string{
 		"-p", "80",
 		",,",
 		"--port", "443", "--root", "/data/443",
+		"--user", "user1",
+		"--pass=pass1",
 		",,",
 	}
 
@@ -77,6 +97,16 @@ func TestParse3(t *testing.T) {
 	root2, _ := parsed2.GetString("root")
 	if root2 != "/data/443" {
 		t.Error(root2)
+	}
+
+	username, _ := parsed2.GetString("username")
+	if username != "user1" {
+		t.Error(username)
+	}
+
+	password, _ := parsed2.GetString("password")
+	if password != "pass1" {
+		t.Error(password)
 	}
 
 	// merge & equal assign
