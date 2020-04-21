@@ -79,10 +79,12 @@ func (s *OptionSet) splitAssignSignArg(arg *Arg) (args []*Arg) {
 
 	argText := arg.Text
 	for _, flag := range s.flagMap {
+		flagName := flag.Name
+		if !s.flagOptionMap[flagName].AcceptValue {
+			continue
+		}
 		for _, assignSign := range flag.assignSigns {
-			flagName := flag.Name
-
-			if len(assignSign) == 0 || !s.flagOptionMap[flagName].AcceptValue {
+			if len(assignSign) == 0 {
 				continue
 			}
 
