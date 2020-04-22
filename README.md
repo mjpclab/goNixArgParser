@@ -38,8 +38,12 @@ cmdCheckout := cmdGit.NewSimpleSubCommand("checkout", "checkout branches or file
 
 ## Options
 Here we want to define options on `cmdAdd` for `git remote add`. But if no sub command is needed, then just define them on root Command.
+Get `*OptionSet` of the command first:
+```go
+addOpts := cmdAdd.Options()
+```
 
-Available methods on `*Command.Options`:
+Available methods on `*OptionSet`:
 - `AddFlag(key, flag, envVar, summary string)`  // single flag, without values
 - `AddFlags(key string, flags []string, envVar, summary string)`  // multiple flag, without values
 - `AddFlagValue(key, flag, envVar, defaultValue, summary string)`  // single flag, single value
@@ -50,8 +54,8 @@ Available methods on `*Command.Options`:
 `key` is a unique option name in `Options`.
 
 ```go
-cmdAdd.Options().AddFlagValue("track", "-t", "", "", "only track specified branch")
-cmdAdd.Options().AddFlag("fetch", "-f", "", "fetch after added")
+addOpts.AddFlagValue("track", "-t", "", "", "only track specified branch")
+addOpts.AddFlag("fetch", "-f", "", "fetch after added")
 ```
 
 # Step 2 - Parse
@@ -154,9 +158,11 @@ if arg group separator is the last arg, then there is an empty option set follow
 When defining schemas, methods like `NewSimpleXXX` on command, or `AddXXX` on options,
 are shortcuts that hides detail of bottom layer.
 If you want to control or customize on more detail level, then the following part explains.
-Use `NewCommand` to create command schema manually.
-Use `*OptionSet.Append(*Option)` to add option schema manually.
-use `NewFlag` to create flag schema manually, and append to `*Option.Flags`.
+- Use `NewCommand` to create command schema manually.
+- Use `command.Options()` go get `*OptionSet`
+- Create Option value manually
+- use `*OptionSet.Add(Option)` to add option schema manually. 
+- use `NewFlag` to create flag schema manually, and add to `Option.Flags`.
 
 ## Command struct
 Both root command and sub commands are of type `*Command`. Initial parameters:
@@ -213,6 +219,14 @@ Following args have the same effect if delimiter is `,`:
 cmd subCmd --option value1,value2,value3
 cmd subCmd --option value1 --option value2 --option value3
 ```
+
+### Shortcut functions to create Option with flags:
+- `NewFlagOption(key, flag, envVar, summary string) Option`  // single flag, without values
+- `NewFlagsOption(key string, flags []string, envVar, summary string) Option`  // multiple flag, without values
+- `NewFlagValueOption(key, flag, envVar, defaultValue, summary string) Option`  // single flag, single value
+- `NewFlagValuesOption(key, flag, envVar string, defaultValues []string, summary string) Option`  // single flag, multiple values
+- `NewFlagsValueOption(key string, flags []string, envVar, defaultValue, summary string) Option` // multiple flags, single value
+- `NewFlagsValuesOption(key string, flags []string, envVar string, defaultValues []string, summary string) Option`  / multiple flags, multiple values
 
 ### `UniqueValues`
 Remove duplicated values for parsed result automatically if true.

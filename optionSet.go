@@ -114,7 +114,7 @@ func (s *OptionSet) findFlagByPrefix(prefix string) (flag *Flag, ambiguous bool)
 	return matched, false
 }
 
-func (s *OptionSet) Append(opt Option) error {
+func (s *OptionSet) Add(opt Option) error {
 	// verify
 	if len(opt.Key) == 0 {
 		return errors.New("key is empty")
@@ -186,71 +186,27 @@ func (s *OptionSet) Append(opt Option) error {
 }
 
 func (s *OptionSet) AddFlag(key, flag, envVar, summary string) error {
-	return s.Append(Option{
-		Key:     key,
-		Flags:   []*Flag{NewSimpleFlag(flag)},
-		EnvVars: StringToSlice(envVar),
-		Summary: summary,
-	})
+	return s.Add(NewFlagOption(key, flag, envVar, summary))
 }
 
 func (s *OptionSet) AddFlags(key string, flags []string, envVar, summary string) error {
-	return s.Append(Option{
-		Key:     key,
-		Flags:   NewSimpleFlags(flags),
-		EnvVars: StringToSlice(envVar),
-		Summary: summary,
-	})
+	return s.Add(NewFlagsOption(key, flags, envVar, summary))
 }
 
 func (s *OptionSet) AddFlagValue(key, flag, envVar, defaultValue, summary string) error {
-	return s.Append(Option{
-		Key:           key,
-		Flags:         []*Flag{NewSimpleFlag(flag)},
-		AcceptValue:   true,
-		OverridePrev:  true,
-		EnvVars:       StringToSlice(envVar),
-		DefaultValues: StringToSlice(defaultValue),
-		Summary:       summary,
-	})
+	return s.Add(NewFlagValueOption(key, flag, envVar, defaultValue, summary))
 }
 
 func (s *OptionSet) AddFlagValues(key, flag, envVar string, defaultValues []string, summary string) error {
-	return s.Append(Option{
-		Key:           key,
-		Flags:         []*Flag{NewSimpleFlag(flag)},
-		AcceptValue:   true,
-		MultiValues:   true,
-		UniqueValues:  true,
-		EnvVars:       StringToSlice(envVar),
-		DefaultValues: defaultValues,
-		Summary:       summary,
-	})
+	return s.Add(NewFlagValuesOption(key, flag, envVar, defaultValues, summary))
 }
 
 func (s *OptionSet) AddFlagsValue(key string, flags []string, envVar, defaultValue, summary string) error {
-	return s.Append(Option{
-		Key:           key,
-		Flags:         NewSimpleFlags(flags),
-		AcceptValue:   true,
-		OverridePrev:  true,
-		EnvVars:       StringToSlice(envVar),
-		DefaultValues: StringToSlice(defaultValue),
-		Summary:       summary,
-	})
+	return s.Add(NewFlagsValueOption(key, flags, envVar, defaultValue, summary))
 }
 
 func (s *OptionSet) AddFlagsValues(key string, flags []string, envVar string, defaultValues []string, summary string) error {
-	return s.Append(Option{
-		Key:           key,
-		Flags:         NewSimpleFlags(flags),
-		AcceptValue:   true,
-		MultiValues:   true,
-		UniqueValues:  true,
-		EnvVars:       StringToSlice(envVar),
-		DefaultValues: defaultValues,
-		Summary:       summary,
-	})
+	return s.Add(NewFlagsValuesOption(key, flags, envVar, defaultValues, summary))
 }
 
 func (s *OptionSet) GetHelp() []byte {
