@@ -198,6 +198,7 @@ Here `--` is a rests sign. It can be specified by other values when initializing
 ### `undefFlagPrefixes`
 If an argument is not a flag, and begin with one of the `undefFlagPrefixes`, treat it as an undefined flag.
 Otherwise treat this argument as previous flag's value or rests value.
+Useful if end user inputs an undefined flag
 
 ## Option struct
 `Option` represents an individual option. Some initial parameter:
