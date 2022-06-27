@@ -1,8 +1,8 @@
 package goNixArgParser
 
-func NewArg(text string, argType ArgType) *Arg {
-	return &Arg{
-		Text: text,
-		Type: argType,
+func newArg(text string, argType argKind) *argToken {
+	return &argToken{
+		text: text,
+		kind: argType,
 	}
 }

@@ -50,25 +50,25 @@ type Flag struct {
 	assignSigns     []string
 }
 
-type ArgType int
+type argKind int
 
 const (
-	UndetermArg ArgType = iota
-	CommandArg
-	FlagArg
-	ValueArg
-	UndefFlagArg
-	UndefFlagValueArg
-	AmbiguousFlagArg
-	AmbiguousFlagValueArg
-	RestSignArg
-	RestArg
-	GroupSepArg
+	undetermArg argKind = iota
+	commandArg
+	flagArg
+	valueArg
+	undefFlagArg
+	undefFlagValueArg
+	ambiguousFlagArg
+	ambiguousFlagValueArg
+	restSignArg
+	restArg
+	groupSepArg
 )
 
-type Arg struct {
-	Text string
-	Type ArgType
+type argToken struct {
+	text string
+	kind argKind
 }
 
 type ParseResult struct {

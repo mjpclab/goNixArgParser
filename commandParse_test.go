@@ -28,7 +28,7 @@ func getGitCommand() *Command {
 func TestNormalizeCmdArgs(t *testing.T) {
 	cmd := getGitCommand()
 	args := []string{"git", "rmt", "set-url", "--push", "origin", "https://github.com/mjpclab/goNixArgParser.git"}
-	_, normalizedArgs := cmd.getNormalizedArgs(args)
+	_, normalizedArgs := cmd.getArgTokens(args)
 	for i, arg := range normalizedArgs {
 		fmt.Printf("%d %+v\n", i, arg)
 	}

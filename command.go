@@ -92,20 +92,20 @@ func (c *Command) SubCommands() []*Command {
 	return c.subCommands
 }
 
-func (c *Command) getNormalizedArgs(initArgs []string) (*Command, []*Arg) {
+func (c *Command) getArgTokens(initArgs []string) (*Command, []*argToken) {
 	cmd := c
 
 	if len(initArgs) == 0 {
-		return cmd, []*Arg{}
+		return cmd, []*argToken{}
 	}
 
-	args := make([]*Arg, 0, len(initArgs))
+	args := make([]*argToken, 0, len(initArgs))
 
 	for i, arg := range initArgs {
 		if i == 0 && cmd.hasName(arg) {
-			args = append(args, NewArg(cmd.Name(), CommandArg))
+			args = append(args, newArg(cmd.Name(), commandArg))
 		} else if subCmd := cmd.GetSubCommand(arg); subCmd != nil {
-			args = append(args, NewArg(subCmd.Name(), CommandArg))
+			args = append(args, newArg(subCmd.Name(), commandArg))
 			cmd = subCmd
 		} else {
 			break
@@ -119,12 +119,12 @@ func (c *Command) splitCommandsArgs(initArgs, initConfigs []string) (
 	argsLeafCmd *Command,
 	commands, optionSetInitArgs, optionSetInitConfigs []string,
 ) {
-	argsLeafCmd, argCmds := c.getNormalizedArgs(initArgs)
-	configsLeafCmd, configCmds := c.getNormalizedArgs(initConfigs)
+	argsLeafCmd, argCmds := c.getArgTokens(initArgs)
+	configsLeafCmd, configCmds := c.getArgTokens(initConfigs)
 
 	commands = []string{}
 	for _, arg := range argCmds {
-		commands = append(commands, arg.Text)
+		commands = append(commands, arg.text)
 	}
 
 	optionSetInitArgs = initArgs[len(argCmds):]
