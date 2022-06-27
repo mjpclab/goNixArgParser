@@ -20,9 +20,9 @@ func NewCommand(
 }
 
 func NewSimpleCommand(name, summary string, aliasNames ...string) *Command {
-	names := make([]string, 0, 1+len(aliasNames))
-	names = append(names, name)
-	names = append(names, aliasNames...)
+	names := make([]string, 1+len(aliasNames))
+	names[0] = name
+	copy(names[1:], aliasNames)
 
 	return &Command{
 		names:       names,
@@ -58,10 +58,6 @@ func (c *Command) hasName(name string) bool {
 }
 
 func (c *Command) GetSubCommand(name string) *Command {
-	if c.subCommands == nil {
-		return nil
-	}
-
 	for _, cmd := range c.subCommands {
 		if cmd.hasName(name) {
 			return cmd
@@ -79,7 +75,9 @@ func (c *Command) Name() (name string) {
 }
 
 func (c *Command) Names() []string {
-	return c.names
+	names := make([]string, len(c.names))
+	copy(names, c.names)
+	return names
 }
 
 func (c *Command) Summary() string {
