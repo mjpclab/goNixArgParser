@@ -92,72 +92,67 @@ func (c *Command) SubCommands() []*Command {
 	return c.subCommands
 }
 
-func (c *Command) getArgTokens(initArgs []string) (*Command, []*argToken) {
-	cmd := c
+func (c *Command) getLeafCmd(args []string) (cmd *Command, cmdPaths []string) {
+	cmd = c
 
-	if len(initArgs) == 0 {
-		return cmd, []*argToken{}
+	if len(args) == 0 {
+		return cmd, []string{}
 	}
 
-	args := make([]*argToken, 0, len(initArgs))
-
-	for i, arg := range initArgs {
+	for i, arg := range args {
 		if i == 0 && cmd.hasName(arg) {
-			args = append(args, newArg(cmd.Name(), commandArg))
+			cmdPaths = append(cmdPaths, cmd.Name())
 		} else if subCmd := cmd.GetSubCommand(arg); subCmd != nil {
-			args = append(args, newArg(subCmd.Name(), commandArg))
 			cmd = subCmd
+			cmdPaths = append(cmdPaths, cmd.Name())
 		} else {
 			break
 		}
 	}
 
-	return cmd, args
+	return
 }
 
-func (c *Command) splitCommandsArgs(initArgs, initConfigs []string) (
-	argsLeafCmd *Command,
-	commands, optionSetInitArgs, optionSetInitConfigs []string,
+func (c *Command) extractCmdOptionArgs(specifiedArgs, configArgs []string) (
+	specifiedCmd *Command,
+	cmdPaths, specifiedOptionArgs, configOptionArgs []string,
 ) {
-	argsLeafCmd, argCmds := c.getArgTokens(initArgs)
-	configsLeafCmd, configCmds := c.getArgTokens(initConfigs)
+	specifiedCmd, specifiedCmdPaths := c.getLeafCmd(specifiedArgs)
+	configCmd, configCmdPaths := c.getLeafCmd(configArgs)
 
-	commands = []string{}
-	for _, arg := range argCmds {
-		commands = append(commands, arg.text)
-	}
+	cmdPaths = specifiedCmdPaths
 
-	optionSetInitArgs = initArgs[len(argCmds):]
+	specifiedOptionArgs = specifiedArgs[len(specifiedCmdPaths):]
 
-	if argsLeafCmd == configsLeafCmd {
-		optionSetInitConfigs = initConfigs[len(configCmds):]
+	if specifiedCmd == configCmd {
+		configOptionArgs = configArgs[len(configCmdPaths):]
 	} else {
-		optionSetInitConfigs = []string{}
+		configOptionArgs = []string{}
 	}
 
 	return
 }
 
-func (c *Command) Parse(initArgs, initConfigs []string) *ParseResult {
-	leafCmd, commands, optionSetInitArgs, optionSetInitConfigs := c.splitCommandsArgs(initArgs, initConfigs)
-	result := leafCmd.options.Parse(optionSetInitArgs, optionSetInitConfigs)
-	result.commands = commands
+func (c *Command) Parse(specifiedArgs, configArgs []string) *ParseResult {
+	cmd, cmdPaths, specifiedOptionArgs, configOptionArgs := c.extractCmdOptionArgs(specifiedArgs, configArgs)
+	result := cmd.options.Parse(specifiedOptionArgs, configOptionArgs)
+	result.commands = cmdPaths
 
 	return result
 }
 
-func (c *Command) ParseGroups(initArgs, initConfigs []string) (results []*ParseResult) {
-	leafCmd, commands, optionSetInitArgs, optionSetInitConfigs := c.splitCommandsArgs(initArgs, initConfigs)
+func (c *Command) ParseGroups(specifiedArgs, configArgs []string) (results []*ParseResult) {
+	cmd, cmdPaths, specifiedOptionArgs, configOptionArgs := c.extractCmdOptionArgs(specifiedArgs, configArgs)
 
-	if len(optionSetInitArgs) == 0 && len(optionSetInitConfigs) == 0 {
-		result := leafCmd.options.Parse(optionSetInitArgs, optionSetInitConfigs)
+	if len(specifiedOptionArgs) == 0 && len(configOptionArgs) == 0 {
+		result := cmd.options.Parse(specifiedOptionArgs, configOptionArgs)
 		results = append(results, result)
 	} else {
-		results = leafCmd.options.ParseGroups(optionSetInitArgs, optionSetInitConfigs)
+		results = cmd.options.ParseGroups(specifiedOptionArgs, configOptionArgs)
 	}
 
 	for _, result := range results {
-		result.commands = commands
+		result.commands = cmdPaths
 	}
 
 	return results

@@ -330,12 +330,12 @@ func (s *OptionSet) parseArgsInGroup(argObjs []*argToken) (args map[string][]str
 	return args, rests, ambigus, undefs
 }
 
-func (s *OptionSet) parseInGroup(argObjs, configObjs []*argToken) *ParseResult {
+func (s *OptionSet) parseInGroup(specifiedTokens, configTokens []*argToken) *ParseResult {
 	keyOptionMap := s.keyOptionMap
 
-	args, argRests, argAmbigus, argUndefs := s.parseArgsInGroup(argObjs)
+	args, argRests, argAmbigus, argUndefs := s.parseArgsInGroup(specifiedTokens)
 	envs := s.keyEnvMap
-	configs, configRests, configAmbigus, configUndefs := s.parseArgsInGroup(configObjs)
+	configs, configRests, configAmbigus, configUndefs := s.parseArgsInGroup(configTokens)
 	defaults := s.keyDefaultMap
 
 	return &ParseResult{
@@ -357,103 +357,103 @@ func (s *OptionSet) parseInGroup(argObjs, configObjs []*argToken) *ParseResult {
 	}
 }
 
-func (s *OptionSet) getNormalizedArgs(initArgs []string) []*argToken {
-	args := make([]*argToken, 0, len(initArgs)+1)
+func (s *OptionSet) argsToTokens(args []string) []*argToken {
+	tokens := make([]*argToken, 0, len(args)+1)
 
 	foundRestSign := false
-	for _, arg := range initArgs {
+	for _, arg := range args {
 		switch {
 		case s.isGroupSep(arg):
 			foundRestSign = false
-			args = append(args, newArg(arg, groupSepArg))
+			tokens = append(tokens, newArg(arg, groupSepArg))
 		case foundRestSign:
-			args = append(args, newArg(arg, restArg))
+			tokens = append(tokens, newArg(arg, restArg))
 		case s.isRestSign(arg):
 			foundRestSign = true
-			args = append(args, newArg(arg, restSignArg))
+			tokens = append(tokens, newArg(arg, restSignArg))
 		case s.flagMap[arg] != nil:
-			args = append(args, newArg(arg, flagArg))
+			tokens = append(tokens, newArg(arg, flagArg))
 		default:
-			args = append(args, newArg(arg, undetermArg))
+			tokens = append(tokens, newArg(arg, undetermArg))
 		}
 	}
 
-	return args
+	return tokens
 }
 
-func splitArgsIntoGroups(argObjs []*argToken) [][]*argToken {
-	argObjs = append(argObjs, newArg("", groupSepArg))
+func splitTokensToGroups(tokens []*argToken) [][]*argToken {
+	tokens = append(tokens, newArg("", groupSepArg))
 
 	groups := [][]*argToken{}
-	items := []*argToken{}
-	for _, argObj := range argObjs {
-		if argObj.kind != groupSepArg {
-			items = append(items, argObj)
+	var items []*argToken
+	for _, token := range tokens {
+		if token.kind != groupSepArg {
+			items = append(items, token)
 			continue
 		}
 
 		groups = append(groups, items)
-		items = []*argToken{}
+		items = nil
 	}
 
 	return groups
 }
 
-func (s *OptionSet) getArgsConfigsGroups(initArgs, initConfigs []string) ([][]*argToken, [][]*argToken) {
-	args := s.getNormalizedArgs(initArgs)
-	argsGroups := splitArgsIntoGroups(args)
-	argsGroupsCount := len(argsGroups)
+func (s *OptionSet) getAlignedTokensGroups(specifiedArgs, configArgs []string) ([][]*argToken, [][]*argToken) {
+	specifiedTokens := s.argsToTokens(specifiedArgs)
+	specifiedTokensGroups := splitTokensToGroups(specifiedTokens)
+	specifiedTokensGroupsCount := len(specifiedTokensGroups)
 
-	configs := s.getNormalizedArgs(initConfigs)
-	configsGroups := splitArgsIntoGroups(configs)
-	configsGroupsCount := len(configsGroups)
+	configTokens := s.argsToTokens(configArgs)
+	configTokensGroups := splitTokensToGroups(configTokens)
+	configTokensGroupsCount := len(configTokensGroups)
 
-	length := argsGroupsCount
-	if configsGroupsCount > length {
-		length = configsGroupsCount
+	maxCount := specifiedTokensGroupsCount
+	if configTokensGroupsCount > maxCount {
+		maxCount = configTokensGroupsCount
 	}
 
-	for i := 0; i < length-argsGroupsCount; i++ {
-		argsGroups = append(argsGroups, []*argToken{})
+	for i := specifiedTokensGroupsCount; i < maxCount; i++ {
+		specifiedTokensGroups = append(specifiedTokensGroups, []*argToken{})
 	}
 
-	for i := 0; i < length-configsGroupsCount; i++ {
-		configsGroups = append(configsGroups, []*argToken{})
+	for i := configTokensGroupsCount; i < maxCount; i++ {
+		configTokensGroups = append(configTokensGroups, []*argToken{})
 	}
 
-	return argsGroups, configsGroups
+	return specifiedTokensGroups, configTokensGroups
 }
 
-func (s *OptionSet) ParseGroups(initArgs, initConfigs []string) []*ParseResult {
-	argsGroups, configsGroups := s.getArgsConfigsGroups(initArgs, initConfigs)
+func (s *OptionSet) ParseGroups(specifiedArgs, configArgs []string) []*ParseResult {
+	specifiedTokensGroups, configTokensGroups := s.getAlignedTokensGroups(specifiedArgs, configArgs)
 
-	results := []*ParseResult{}
-	for i, length := 0, len(argsGroups); i < length; i++ {
-		result := s.parseInGroup(argsGroups[i], configsGroups[i])
-		results = append(results, result)
+	length := len(specifiedTokensGroups)
+	results := make([]*ParseResult, length)
+	for i := 0; i < length; i++ {
+		results[i] = s.parseInGroup(specifiedTokensGroups[i], configTokensGroups[i])
 	}
 
 	return results
 }
 
-func (s *OptionSet) Parse(initArgs, initConfigs []string) *ParseResult {
-	argsGroups, configsGroups := s.getArgsConfigsGroups(initArgs, initConfigs)
+func (s *OptionSet) Parse(specifiedArgs, configArgs []string) *ParseResult {
+	specifiedTokensGroups, configTokensGroups := s.getAlignedTokensGroups(specifiedArgs, configArgs)
 
-	var args []*argToken
-	if len(argsGroups) > 0 {
-		args = argsGroups[0]
+	var specifiedTokens []*argToken
+	if len(specifiedTokensGroups) > 0 {
+		specifiedTokens = specifiedTokensGroups[0]
 	} else {
-		args = []*argToken{}
+		specifiedTokens = []*argToken{}
 	}
 
-	var configs []*argToken
-	if len(configsGroups) > 0 {
-		configs = configsGroups[0]
+	var configTokens []*argToken
+	if len(configTokensGroups) > 0 {
+		configTokens = configTokensGroups[0]
 	} else {
-		configs = []*argToken{}
+		configTokens = []*argToken{}
 	}
 
-	result := s.parseInGroup(args, configs)
+	result := s.parseInGroup(specifiedTokens, configTokens)
 
 	return result
 }
