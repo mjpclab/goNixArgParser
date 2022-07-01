@@ -357,55 +357,37 @@ func (s *OptionSet) parseInGroup(specifiedTokens, configTokens []*argToken) *Par
 	}
 }
 
-func (s *OptionSet) argsToTokens(args []string) []*argToken {
-	tokens := make([]*argToken, 0, len(args)+1)
+func (s *OptionSet) argsToTokensGroups(args []string) (tokensGroups [][]*argToken) {
+	tokensGroups = make([][]*argToken, 1)
+	groupIndex := 0
 
 	foundRestSign := false
 	for _, arg := range args {
 		switch {
 		case s.isGroupSep(arg):
+			tokensGroups = append(tokensGroups, make([]*argToken, 0, 4))
+			groupIndex++
 			foundRestSign = false
-			tokens = append(tokens, newArg(arg, groupSepArg))
 		case foundRestSign:
-			tokens = append(tokens, newArg(arg, restArg))
+			tokensGroups[groupIndex] = append(tokensGroups[groupIndex], newArg(arg, restArg))
 		case s.isRestSign(arg):
+			tokensGroups[groupIndex] = append(tokensGroups[groupIndex], newArg(arg, restSignArg))
 			foundRestSign = true
-			tokens = append(tokens, newArg(arg, restSignArg))
 		case s.flagMap[arg] != nil:
-			tokens = append(tokens, newArg(arg, flagArg))
+			tokensGroups[groupIndex] = append(tokensGroups[groupIndex], newArg(arg, flagArg))
 		default:
-			tokens = append(tokens, newArg(arg, undetermArg))
+			tokensGroups[groupIndex] = append(tokensGroups[groupIndex], newArg(arg, undetermArg))
 		}
 	}
 
-	return tokens
-}
-
-func splitTokensToGroups(tokens []*argToken) [][]*argToken {
-	tokens = append(tokens, newArg("", groupSepArg))
-
-	groups := [][]*argToken{}
-	var items []*argToken
-	for _, token := range tokens {
-		if token.kind != groupSepArg {
-			items = append(items, token)
-			continue
-		}
-
-		groups = append(groups, items)
-		items = nil
-	}
-
-	return groups
+	return
 }
 
 func (s *OptionSet) getAlignedTokensGroups(specifiedArgs, configArgs []string) ([][]*argToken, [][]*argToken) {
-	specifiedTokens := s.argsToTokens(specifiedArgs)
-	specifiedTokensGroups := splitTokensToGroups(specifiedTokens)
+	specifiedTokensGroups := s.argsToTokensGroups(specifiedArgs)
 	specifiedTokensGroupsCount := len(specifiedTokensGroups)
 
-	configTokens := s.argsToTokens(configArgs)
-	configTokensGroups := splitTokensToGroups(configTokens)
+	configTokensGroups := s.argsToTokensGroups(configArgs)
 	configTokensGroupsCount := len(configTokensGroups)
 
 	maxCount := specifiedTokensGroupsCount
