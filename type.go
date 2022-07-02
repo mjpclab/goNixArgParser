@@ -22,7 +22,7 @@ type OptionSet struct {
 
 	keyOptionMap  map[string]*Option
 	flagOptionMap map[string]*Option
-	flagMap       map[string]*Flag
+	nameFlagMap   map[string]*Flag
 	keyEnvMap     map[string][]string
 	keyDefaultMap map[string][]string
 }

@@ -7,14 +7,6 @@ import (
 	"strings"
 )
 
-func StringToSlice(input string) []string {
-	if len(input) == 0 {
-		return nil
-	}
-
-	return []string{input}
-}
-
 func NewOptionSet(
 	mergeFlagPrefix string,
 	restsSigns []string,
@@ -33,7 +25,7 @@ func NewOptionSet(
 
 		keyOptionMap:  map[string]*Option{},
 		flagOptionMap: map[string]*Option{},
-		flagMap:       map[string]*Flag{},
+		nameFlagMap:   map[string]*Flag{},
 		keyEnvMap:     map[string][]string{},
 		keyDefaultMap: map[string][]string{},
 	}
@@ -130,7 +122,7 @@ func (s *OptionSet) Add(opt Option) error {
 		if len(flagName) == 0 {
 			return errors.New("flag name is empty")
 		}
-		if s.flagMap[flagName] != nil {
+		if s.nameFlagMap[flagName] != nil {
 			return errors.New("flag '" + flagName + "' already exists")
 		}
 	}
@@ -155,7 +147,7 @@ func (s *OptionSet) Add(opt Option) error {
 
 		flagName := flag.Name
 		s.flagOptionMap[flagName] = option
-		s.flagMap[flagName] = flag
+		s.nameFlagMap[flagName] = flag
 	}
 
 	// redundant - env maps

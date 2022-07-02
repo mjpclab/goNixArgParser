@@ -5,7 +5,7 @@ import (
 )
 
 func (s *OptionSet) splitMergedToken(token *argToken) (results []*argToken, success bool) {
-	flagMap := s.flagMap
+	flagMap := s.nameFlagMap
 	optionMap := s.flagOptionMap
 	originalArg := token.text
 
@@ -69,7 +69,7 @@ func (s *OptionSet) splitAssignSignToken(token *argToken) (results []*argToken) 
 	results = make([]*argToken, 0, 2)
 
 	text := token.text
-	for _, flag := range s.flagMap {
+	for _, flag := range s.nameFlagMap {
 		flagName := flag.Name
 		if !s.flagOptionMap[flagName].AcceptValue {
 			continue
@@ -125,7 +125,7 @@ func (s *OptionSet) splitConcatAssignToken(token *argToken) (results []*argToken
 	results = make([]*argToken, 0, 2)
 
 	text := token.text
-	for _, flag := range s.flagMap {
+	for _, flag := range s.nameFlagMap {
 		if !flag.canConcatAssign ||
 			!s.flagOptionMap[flag.Name].AcceptValue ||
 			len(text) <= len(flag.Name) ||
@@ -217,7 +217,7 @@ func (s *OptionSet) parseTokensInGroup(tokens []*argToken) (options map[string][
 	undefs = []string{}
 
 	flagOptionMap := s.flagOptionMap
-	flagMap := s.flagMap
+	flagMap := s.nameFlagMap
 
 	if s.hasCanMerge {
 		tokens = s.splitMergedTokens(tokens)
@@ -376,7 +376,7 @@ func (s *OptionSet) argsToTokensGroups(args []string) (tokensGroups [][]*argToke
 		case s.isRestSign(arg):
 			tokensGroups[groupIndex] = append(tokensGroups[groupIndex], newToken(arg, restSignArg))
 			foundRestSign = true
-		case s.flagMap[arg] != nil:
+		case s.nameFlagMap[arg] != nil:
 			tokensGroups[groupIndex] = append(tokensGroups[groupIndex], newToken(arg, flagArg))
 		default:
 			tokensGroups[groupIndex] = append(tokensGroups[groupIndex], newToken(arg, undetermArg))
