@@ -4,24 +4,24 @@ import (
 	"strings"
 )
 
-func (s *OptionSet) splitMergedArg(arg *argToken) (args []*argToken, success bool) {
+func (s *OptionSet) splitMergedToken(token *argToken) (results []*argToken, success bool) {
 	flagMap := s.flagMap
 	optionMap := s.flagOptionMap
-	argText := arg.text
+	originalArg := token.text
 
-	if arg.kind != undetermArg ||
-		len(argText) <= len(s.mergeFlagPrefix) ||
-		!strings.HasPrefix(argText, s.mergeFlagPrefix) {
+	if token.kind != undetermArg ||
+		len(originalArg) <= len(s.mergeFlagPrefix) ||
+		!strings.HasPrefix(originalArg, s.mergeFlagPrefix) {
 		return
 	}
 
-	if flagMap[argText] != nil {
+	if flagMap[originalArg] != nil {
 		return
 	}
 
 	var prevFlag *Flag
-	mergedArgs := argText[len(s.mergeFlagPrefix):]
-	splittedArgs := make([]*argToken, 0, len(mergedArgs))
+	mergedArgs := originalArg[len(s.mergeFlagPrefix):]
+	splittedTokens := make([]*argToken, 0, len(mergedArgs))
 	for i, mergedArg := range mergedArgs {
 		splittedArg := s.mergeFlagPrefix + string(mergedArg)
 		flag := flagMap[splittedArg]
@@ -30,13 +30,9 @@ func (s *OptionSet) splitMergedArg(arg *argToken) (args []*argToken, success boo
 			if !flag.canMerge {
 				return
 			}
-			splittedArgs = append(splittedArgs, newToken(splittedArg, flagArg))
+			splittedTokens = append(splittedTokens, newToken(splittedArg, flagArg))
 			prevFlag = flag
 			continue
-		}
-
-		if len(splittedArg) <= 1 {
-			return
 		}
 
 		if prevFlag == nil {
@@ -49,17 +45,17 @@ func (s *OptionSet) splitMergedArg(arg *argToken) (args []*argToken, success boo
 		}
 
 		// re-generate standalone flag with values
-		splittedArgs[len(splittedArgs)-1] = newToken(prevFlag.Name+mergedArgs[i:], undetermArg)
+		splittedTokens[len(splittedTokens)-1] = newToken(prevFlag.Name+mergedArgs[i:], undetermArg)
 		break
 	}
 
-	return splittedArgs, true
+	return splittedTokens, true
 }
 
 func (s *OptionSet) splitMergedTokens(tokens []*argToken) []*argToken {
 	results := make([]*argToken, 0, len(tokens))
 	for _, originalToken := range tokens {
-		splittedTokens, splitted := s.splitMergedArg(originalToken)
+		splittedTokens, splitted := s.splitMergedToken(originalToken)
 		if splitted {
 			results = append(results, splittedTokens...)
 		} else {
