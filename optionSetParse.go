@@ -124,23 +124,20 @@ func (s *OptionSet) splitAssignSignTokens(tokens []*argToken) []*argToken {
 func (s *OptionSet) splitConcatAssignToken(token *argToken) (results []*argToken) {
 	results = make([]*argToken, 0, 2)
 
-	if token.kind != undetermArg {
-		results = append(results, token)
-		return
-	}
-
-	argText := token.text
+	text := token.text
 	for _, flag := range s.flagMap {
 		if !flag.canConcatAssign ||
 			!s.flagOptionMap[flag.Name].AcceptValue ||
-			len(argText) <= len(flag.Name) ||
-			!strings.HasPrefix(argText, flag.Name) {
+			len(text) <= len(flag.Name) ||
+			!strings.HasPrefix(text, flag.Name) {
 			continue
 		}
 		flagName := flag.Name
-		flagValue := argText[len(flagName):]
-		results = append(results, newToken(flagName, flagArg))
-		results = append(results, newToken(flagValue, valueArg))
+		flagValue := text[len(flagName):]
+		results = append(results,
+			newToken(flagName, flagArg),
+			newToken(flagValue, valueArg),
+		)
 		return
 	}
 
@@ -148,14 +145,18 @@ func (s *OptionSet) splitConcatAssignToken(token *argToken) (results []*argToken
 	return
 }
 
-func (s *OptionSet) splitConcatAssignArgs(initArgs []*argToken) []*argToken {
-	args := make([]*argToken, 0, len(initArgs))
+func (s *OptionSet) splitConcatAssignTokens(tokens []*argToken) []*argToken {
+	results := make([]*argToken, 0, len(tokens))
 
-	for _, initArg := range initArgs {
-		args = append(args, s.splitConcatAssignToken(initArg)...)
+	for _, token := range tokens {
+		if token.kind == undetermArg {
+			results = append(results, s.splitConcatAssignToken(token)...)
+		} else {
+			results = append(results, token)
+		}
 	}
 
-	return args
+	return results
 }
 
 func (s *OptionSet) markAmbiguPrefixArgsValues(args []*argToken) {
@@ -222,7 +223,7 @@ func (s *OptionSet) parseArgsInGroup(tokens []*argToken) (options map[string][]s
 		tokens = s.splitAssignSignTokens(tokens)
 	}
 	if s.hasCanConcatAssign {
-		tokens = s.splitConcatAssignArgs(tokens)
+		tokens = s.splitConcatAssignTokens(tokens)
 	}
 
 	s.markAmbiguPrefixArgsValues(tokens)
