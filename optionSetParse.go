@@ -30,7 +30,7 @@ func (s *OptionSet) splitMergedArg(arg *argToken) (args []*argToken, success boo
 			if !flag.canMerge {
 				return
 			}
-			splittedArgs = append(splittedArgs, newArg(splittedArg, flagArg))
+			splittedArgs = append(splittedArgs, newToken(splittedArg, flagArg))
 			prevFlag = flag
 			continue
 		}
@@ -49,35 +49,30 @@ func (s *OptionSet) splitMergedArg(arg *argToken) (args []*argToken, success boo
 		}
 
 		// re-generate standalone flag with values
-		splittedArgs[len(splittedArgs)-1] = newArg(prevFlag.Name+mergedArgs[i:], undetermArg)
+		splittedArgs[len(splittedArgs)-1] = newToken(prevFlag.Name+mergedArgs[i:], undetermArg)
 		break
 	}
 
 	return splittedArgs, true
 }
 
-func (s *OptionSet) splitMergedArgs(initArgs []*argToken) []*argToken {
-	args := make([]*argToken, 0, len(initArgs))
-	for _, arg := range initArgs {
-		splittedArgs, splitted := s.splitMergedArg(arg)
+func (s *OptionSet) splitMergedTokens(tokens []*argToken) []*argToken {
+	results := make([]*argToken, 0, len(tokens))
+	for _, originalToken := range tokens {
+		splittedTokens, splitted := s.splitMergedArg(originalToken)
 		if splitted {
-			args = append(args, splittedArgs...)
+			results = append(results, splittedTokens...)
 		} else {
-			args = append(args, arg)
+			results = append(results, originalToken)
 		}
 	}
-	return args
+	return results
 }
 
-func (s *OptionSet) splitAssignSignArg(arg *argToken) (args []*argToken) {
-	args = make([]*argToken, 0, 2)
+func (s *OptionSet) splitAssignSignToken(token *argToken) (results []*argToken) {
+	results = make([]*argToken, 0, 2)
 
-	if arg.kind != undetermArg {
-		args = append(args, arg)
-		return
-	}
-
-	argText := arg.text
+	text := token.text
 	for _, flag := range s.flagMap {
 		flagName := flag.Name
 		if !s.flagOptionMap[flagName].AcceptValue {
@@ -89,48 +84,56 @@ func (s *OptionSet) splitAssignSignArg(arg *argToken) (args []*argToken) {
 			}
 
 			prefix := flagName + assignSign
-			if strings.HasPrefix(argText, prefix) {
-				args = append(args, newArg(flagName, flagArg))
-				args = append(args, newArg(argText[len(prefix):], valueArg))
+			if strings.HasPrefix(text, prefix) {
+				results = append(results,
+					newToken(flagName, flagArg),
+					newToken(text[len(prefix):], valueArg),
+				)
 				return
 			}
 
-			assignIndex := strings.Index(argText, assignSign)
+			assignIndex := strings.Index(text, assignSign)
 			if assignIndex <= 0 {
 				continue
 			}
-			prefix = argText[0:assignIndex]
+			prefix = text[0:assignIndex]
 			if foundFlag, _ := s.findFlagByPrefix(prefix); foundFlag == flag {
-				args = append(args, newArg(flagName, flagArg))
-				args = append(args, newArg(argText[assignIndex+len(assignSign):], valueArg))
+				results = append(results,
+					newToken(flagName, flagArg),
+					newToken(text[assignIndex+len(assignSign):], valueArg),
+				)
 				return
 			}
 		}
 	}
 
-	args = append(args, arg)
+	results = append(results, token)
 	return
 }
 
-func (s *OptionSet) splitAssignSignArgs(initArgs []*argToken) []*argToken {
-	args := make([]*argToken, 0, len(initArgs))
+func (s *OptionSet) splitAssignSignTokens(tokens []*argToken) []*argToken {
+	results := make([]*argToken, 0, len(tokens))
 
-	for _, initArg := range initArgs {
-		args = append(args, s.splitAssignSignArg(initArg)...)
+	for _, token := range tokens {
+		if token.kind == undetermArg {
+			results = append(results, s.splitAssignSignToken(token)...)
+		} else {
+			results = append(results, token)
+		}
 	}
 
-	return args
+	return results
 }
 
-func (s *OptionSet) splitConcatAssignArg(arg *argToken) (args []*argToken) {
-	args = make([]*argToken, 0, 2)
+func (s *OptionSet) splitConcatAssignToken(token *argToken) (results []*argToken) {
+	results = make([]*argToken, 0, 2)
 
-	if arg.kind != undetermArg {
-		args = append(args, arg)
+	if token.kind != undetermArg {
+		results = append(results, token)
 		return
 	}
 
-	argText := arg.text
+	argText := token.text
 	for _, flag := range s.flagMap {
 		if !flag.canConcatAssign ||
 			!s.flagOptionMap[flag.Name].AcceptValue ||
@@ -140,12 +143,12 @@ func (s *OptionSet) splitConcatAssignArg(arg *argToken) (args []*argToken) {
 		}
 		flagName := flag.Name
 		flagValue := argText[len(flagName):]
-		args = append(args, newArg(flagName, flagArg))
-		args = append(args, newArg(flagValue, valueArg))
+		results = append(results, newToken(flagName, flagArg))
+		results = append(results, newToken(flagValue, valueArg))
 		return
 	}
 
-	args = append(args, arg)
+	results = append(results, token)
 	return
 }
 
@@ -153,7 +156,7 @@ func (s *OptionSet) splitConcatAssignArgs(initArgs []*argToken) []*argToken {
 	args := make([]*argToken, 0, len(initArgs))
 
 	for _, initArg := range initArgs {
-		args = append(args, s.splitConcatAssignArg(initArg)...)
+		args = append(args, s.splitConcatAssignToken(initArg)...)
 	}
 
 	return args
@@ -207,8 +210,8 @@ func isValueArg(flag *Flag, arg *argToken) bool {
 	}
 }
 
-func (s *OptionSet) parseArgsInGroup(argObjs []*argToken) (args map[string][]string, rests, ambigus, undefs []string) {
-	args = map[string][]string{}
+func (s *OptionSet) parseArgsInGroup(tokens []*argToken) (options map[string][]string, rests, ambigus, undefs []string) {
+	options = map[string][]string{}
 	rests = []string{}
 	ambigus = []string{}
 	undefs = []string{}
@@ -217,21 +220,21 @@ func (s *OptionSet) parseArgsInGroup(argObjs []*argToken) (args map[string][]str
 	flagMap := s.flagMap
 
 	if s.hasCanMerge {
-		argObjs = s.splitMergedArgs(argObjs)
+		tokens = s.splitMergedTokens(tokens)
 	}
 	if s.hasAssignSigns {
-		argObjs = s.splitAssignSignArgs(argObjs)
+		tokens = s.splitAssignSignTokens(tokens)
 	}
 	if s.hasCanConcatAssign {
-		argObjs = s.splitConcatAssignArgs(argObjs)
+		tokens = s.splitConcatAssignArgs(tokens)
 	}
 
-	s.markAmbiguPrefixArgsValues(argObjs)
-	s.markUndefArgsValues(argObjs)
+	s.markAmbiguPrefixArgsValues(tokens)
+	s.markUndefArgsValues(tokens)
 
 	// walk
-	for i, argCount, peeked := 0, len(argObjs), 0; i < argCount; i, peeked = i+1+peeked, 0 {
-		arg := argObjs[i]
+	for i, argCount, peeked := 0, len(tokens), 0; i < argCount; i, peeked = i+1+peeked, 0 {
+		arg := tokens[i]
 
 		// rests
 		if arg.kind == restSignArg {
@@ -271,20 +274,20 @@ func (s *OptionSet) parseArgsInGroup(argObjs []*argToken) (args map[string][]str
 		flag := flagMap[arg.text]
 
 		if !opt.AcceptValue { // option has no value
-			args[opt.Key] = []string{}
+			options[opt.Key] = []string{}
 			continue
 		}
 
 		if !opt.MultiValues { // option has 1 value
-			if i == argCount-1 || !isValueArg(flag, argObjs[i+1]) { // no more value
-				if opt.OverridePrev || args[opt.Key] == nil {
-					args[opt.Key] = []string{}
+			if i == argCount-1 || !isValueArg(flag, tokens[i+1]) { // no more value
+				if opt.OverridePrev || options[opt.Key] == nil {
+					options[opt.Key] = []string{}
 				}
 			} else {
-				if opt.OverridePrev || args[opt.Key] == nil {
-					nextArg := argObjs[i+1]
+				if opt.OverridePrev || options[opt.Key] == nil {
+					nextArg := tokens[i+1]
 					nextArg.kind = valueArg
-					args[opt.Key] = []string{nextArg.text}
+					options[opt.Key] = []string{nextArg.text}
 				}
 				peeked++
 			}
@@ -298,12 +301,12 @@ func (s *OptionSet) parseArgsInGroup(argObjs []*argToken) (args map[string][]str
 				break
 			}
 
-			if !isValueArg(flag, argObjs[i+peeked+1]) { // no more value
+			if !isValueArg(flag, tokens[i+peeked+1]) { // no more value
 				break
 			}
 
 			peeked++
-			peekedArg := argObjs[i+peeked]
+			peekedArg := tokens[i+peeked]
 			peekedArg.kind = valueArg
 			value := peekedArg.text
 			var appending []string
@@ -320,14 +323,14 @@ func (s *OptionSet) parseArgsInGroup(argObjs []*argToken) (args map[string][]str
 			}
 		}
 
-		if opt.OverridePrev || args[opt.Key] == nil {
-			args[opt.Key] = values
+		if opt.OverridePrev || options[opt.Key] == nil {
+			options[opt.Key] = values
 		} else {
-			args[opt.Key] = append(args[opt.Key], values...)
+			options[opt.Key] = append(options[opt.Key], values...)
 		}
 	}
 
-	return args, rests, ambigus, undefs
+	return options, rests, ambigus, undefs
 }
 
 func (s *OptionSet) parseInGroup(specifiedTokens, configTokens []*argToken) *ParseResult {
@@ -369,14 +372,14 @@ func (s *OptionSet) argsToTokensGroups(args []string) (tokensGroups [][]*argToke
 			groupIndex++
 			foundRestSign = false
 		case foundRestSign:
-			tokensGroups[groupIndex] = append(tokensGroups[groupIndex], newArg(arg, restArg))
+			tokensGroups[groupIndex] = append(tokensGroups[groupIndex], newToken(arg, restArg))
 		case s.isRestSign(arg):
-			tokensGroups[groupIndex] = append(tokensGroups[groupIndex], newArg(arg, restSignArg))
+			tokensGroups[groupIndex] = append(tokensGroups[groupIndex], newToken(arg, restSignArg))
 			foundRestSign = true
 		case s.flagMap[arg] != nil:
-			tokensGroups[groupIndex] = append(tokensGroups[groupIndex], newArg(arg, flagArg))
+			tokensGroups[groupIndex] = append(tokensGroups[groupIndex], newToken(arg, flagArg))
 		default:
-			tokensGroups[groupIndex] = append(tokensGroups[groupIndex], newArg(arg, undetermArg))
+			tokensGroups[groupIndex] = append(tokensGroups[groupIndex], newToken(arg, undetermArg))
 		}
 	}
 
