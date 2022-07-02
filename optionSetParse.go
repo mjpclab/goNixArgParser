@@ -180,18 +180,21 @@ func (s *OptionSet) markAmbiguPrefixTokens(tokens []*argToken) {
 	}
 }
 
-func (s *OptionSet) markUndefTokens(args []*argToken) {
-	foundUndefFlag := false
-	for _, arg := range args {
-		if arg.kind != undetermArg {
-			foundUndefFlag = false
+func (s *OptionSet) markUndefTokens(tokens []*argToken) {
+	for _, token := range tokens {
+		if token.kind != undetermArg {
 			continue
 		}
-		if s.isUdefFlag(arg.text) {
-			arg.kind = undefFlagArg
-			foundUndefFlag = true
-		} else if foundUndefFlag {
-			arg.kind = undefFlagValueArg
+		if s.isUdefFlag(token.text) {
+			token.kind = undefFlagArg
+			// remove assign value
+			for _, assignSign := range s.assignSigns {
+				assignIndex := strings.Index(token.text, assignSign)
+				if assignIndex > 0 {
+					token.text = token.text[:assignIndex]
+					break
+				}
+			}
 		}
 	}
 }

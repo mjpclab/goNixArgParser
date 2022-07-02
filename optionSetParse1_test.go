@@ -194,8 +194,18 @@ func TestParse1(t *testing.T) {
 	}
 
 	// undefs: [-un1 --without-equal=bcdef -Wcannotconcat]
-	if undefs := r.GetUndefs(); len(undefs) != 3 {
+	undefs := r.GetUndefs()
+	if len(undefs) != 3 {
 		t.Error("undefs:", undefs)
+	}
+	if undefs[0] != "-un1" {
+		t.Error(undefs[0])
+	}
+	if undefs[1] != "--without-equal" {
+		t.Error(undefs[1])
+	}
+	if undefs[2] != "-Wcannotconcat" {
+		t.Error(undefs[2])
 	}
 
 	fmt.Print("fromenv: ")
