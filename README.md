@@ -178,7 +178,7 @@ One OptionSet manages all options supported by its command or sub command. Initi
 
 ### `mergeFlagPrefix`
 Specify the prefix of flag that can be merged together. For example, following commands are equal:
-```bash
+```sh
 ls -a -l
 ls -al
 ```
@@ -187,13 +187,19 @@ Flag names which has only 1 suffix character can be merged.
 
 ### `restsSigns`
 Sometimes we want to specify rest args explicitly, e.g. for "git checkout":
-```bash
+```sh
 git checkout -- file1 file2 file3
 ```
 Here `--` is a rests sign. It can be specified by other values when initializing an OptionSet.
 
 ### `groupSeps`
 `groupSeps` is the separator to split "Arg Groups". Can be customized when initializing an OptionSet.
+
+### `assignSigns`
+Specify symbols (e.g `=`) as assign symbols, separate value to its flag. Example for `=` assign:
+```sh
+ls --hide='*.go'
+```
 
 ### `undefFlagPrefixes`
 If an argument is not a flag, and begin with one of the `undefFlagPrefixes`, treat it as an undefined flag.
@@ -216,7 +222,7 @@ For multiple-value option, if `OverridePrev` is `false`, then later items will b
 ### `Delimiters`
 A multiple-value option's values can be supplied as a string separated by `Delimiters`.
 Following args have the same effect if delimiter is `,`:
-```bash
+```sh
 cmd subCmd --option value1,value2,value3
 cmd subCmd --option value1 --option value2 --option value3
 ```
@@ -256,19 +262,13 @@ if value is `0`, prefix match is disabled.
 
 ### `canFollowAssign`
 Specify if treat args that follow after a flag as option values. Example for follow assign:
-```bash
+```sh
 ls --hide '*.go'
-```
-
-### `assignSigns`
-Specify symbols (e.g `=`) as assign symbols, separate value to its flag. Example for `=` assign:
-```bash
-ls --hide='*.go'
 ```
 
 ### `canConcatAssign`
 Specify if option value can be concatenated after flag name, like `mysql` client tool:
-```bash
+```sh
 mysql -uroot
 # same as:
 mysql -u root
@@ -280,7 +280,7 @@ Use `NewCommand` to create a customized Command, instead of `NewSimpleCommand`:
 func NewCommand(
 	names []string,
 	summary, mergeFlagPrefix string,
-	restsSigns, groupSeps, undefFlagPrefixes []string,
+	restsSigns, groupSeps, assignSigns, undefFlagPrefixes []string,
 ) *Command
 ```
 
@@ -289,7 +289,7 @@ Similarly, use `NewSubCommand` instead of `NewSimpleSubCommand` to create a sub 
 func (c *Command) NewSubCommand(
 	names []string,
 	summary, mergeFlagPrefix string,
-	restsSigns, groupSeps, undefFlagPrefixes []string,
+	restsSigns, groupSeps, assignSigns, undefFlagPrefixes []string,
 ) *Command
 ```
 
@@ -317,7 +317,7 @@ type Option struct {
 ## Creating Custom Flag Schema
 `Option.Flags` is a slice of `*Flag`, Some useful functions to create them:
 ```go
-func NewFlag(name string, canMerge, canFollowAssign, canConcatAssign bool, assignSigns []string) *Flag
+func NewFlag(name string, canMerge, canFollowAssign, canConcatAssign bool) *Flag
 func NewSimpleFlag(name string) *Flag
 func NewSimpleFlags(names []string) []*Flag
 ```

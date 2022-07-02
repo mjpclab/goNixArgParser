@@ -11,13 +11,13 @@ type OptionSet struct {
 	mergeFlagPrefix   string
 	restsSigns        []string
 	groupSeps         []string
+	assignSigns       []string
 	undefFlagPrefixes []string
 
 	options []*Option
 
 	hasCanMerge        bool
 	hasCanConcatAssign bool
-	hasAssignSigns     bool
 	hasPrefixMatch     bool
 
 	keyOptionMap  map[string]*Option
@@ -47,7 +47,6 @@ type Flag struct {
 	canMerge        bool
 	canFollowAssign bool
 	canConcatAssign bool
-	assignSigns     []string
 }
 
 type argKind int

@@ -8,7 +8,7 @@ import (
 func TestParse2(t *testing.T) {
 	var err error
 
-	s := NewOptionSet("", nil, nil, nil)
+	s := NewOptionSet("", nil, nil, nil, nil)
 
 	err = s.Add(Option{
 		Key:           "deft",
@@ -59,7 +59,7 @@ func TestParse2(t *testing.T) {
 		Key:         "props",
 		Summary:     "properties",
 		Description: "single description",
-		Flags:       []*Flag{NewSimpleFlag("-p"), NewFlag("--props", 0, false, true, true, []string{"="})},
+		Flags:       []*Flag{NewSimpleFlag("-p"), NewFlag("--props", 0, false, true, true)},
 		AcceptValue: true,
 		MultiValues: true,
 	})

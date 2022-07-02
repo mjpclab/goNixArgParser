@@ -74,7 +74,7 @@ func (s *OptionSet) splitAssignSignToken(token *argToken) (results []*argToken) 
 		if !s.flagOptionMap[flagName].AcceptValue {
 			continue
 		}
-		for _, assignSign := range flag.assignSigns {
+		for _, assignSign := range s.assignSigns {
 			if len(assignSign) == 0 {
 				continue
 			}
@@ -219,7 +219,7 @@ func (s *OptionSet) parseTokensInGroup(tokens []*argToken) (options map[string][
 	if s.hasCanMerge {
 		tokens = s.splitMergedTokens(tokens)
 	}
-	if s.hasAssignSigns {
+	if len(s.assignSigns) > 0 {
 		tokens = s.splitAssignSignTokens(tokens)
 	}
 	if s.hasCanConcatAssign {

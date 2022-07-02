@@ -9,12 +9,12 @@ import (
 func NewCommand(
 	names []string,
 	summary, mergeFlagPrefix string,
-	restsSigns, groupSeps, undefFlagPrefixes []string,
+	restsSigns, groupSeps, assignSigns, undefFlagPrefixes []string,
 ) *Command {
 	return &Command{
 		names:       names,
 		summary:     summary,
-		options:     NewOptionSet(mergeFlagPrefix, restsSigns, groupSeps, undefFlagPrefixes),
+		options:     NewOptionSet(mergeFlagPrefix, restsSigns, groupSeps, assignSigns, undefFlagPrefixes),
 		subCommands: []*Command{},
 	}
 }
@@ -35,9 +35,9 @@ func NewSimpleCommand(name, summary string, aliasNames ...string) *Command {
 func (c *Command) NewSubCommand(
 	names []string,
 	summary, mergeFlagPrefix string,
-	restsSigns, groupSeps, undefFlagPrefixes []string,
+	restsSigns, groupSeps, assignSigns, undefFlagPrefixes []string,
 ) *Command {
-	subCommand := NewCommand(names, summary, mergeFlagPrefix, restsSigns, groupSeps, undefFlagPrefixes)
+	subCommand := NewCommand(names, summary, mergeFlagPrefix, restsSigns, groupSeps, assignSigns, undefFlagPrefixes)
 	c.subCommands = append(c.subCommands, subCommand)
 	return subCommand
 }

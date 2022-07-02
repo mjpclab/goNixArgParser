@@ -19,12 +19,14 @@ func NewOptionSet(
 	mergeFlagPrefix string,
 	restsSigns []string,
 	groupSeps []string,
+	assignSigns []string,
 	undefFlagPrefixes []string,
 ) *OptionSet {
 	s := &OptionSet{
 		mergeFlagPrefix:   mergeFlagPrefix,
 		restsSigns:        restsSigns,
 		groupSeps:         groupSeps,
+		assignSigns:       assignSigns,
 		undefFlagPrefixes: undefFlagPrefixes,
 
 		options: []*Option{},
@@ -55,7 +57,7 @@ func (s *OptionSet) UndefFlagPrefixes() []string {
 }
 
 func NewSimpleOptionSet() *OptionSet {
-	return NewOptionSet("-", []string{"--"}, []string{",,"}, []string{"-"})
+	return NewOptionSet("-", []string{"--"}, []string{",,"}, []string{"="}, []string{"-"})
 }
 
 func (s *OptionSet) isRestSign(input string) bool {
@@ -146,9 +148,6 @@ func (s *OptionSet) Add(opt Option) error {
 		}
 		if flag.canConcatAssign {
 			s.hasCanConcatAssign = true
-		}
-		if len(flag.assignSigns) > 0 {
-			s.hasAssignSigns = true
 		}
 		if flag.prefixMatchLen > 0 {
 			s.hasPrefixMatch = true

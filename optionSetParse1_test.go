@@ -8,7 +8,7 @@ import (
 func TestParse1(t *testing.T) {
 	var err error
 
-	s := NewOptionSet("-", []string{"--"}, []string{",,"}, []string{"-"})
+	s := NewOptionSet("-", []string{"--"}, []string{",,"}, []string{"="}, []string{"-"})
 	err = s.Add(Option{
 		Key:         "tag",
 		Summary:     "tag summary",
@@ -80,10 +80,8 @@ func TestParse1(t *testing.T) {
 	}
 
 	err = s.Add(Option{
-		Key: "withEqual",
-		Flags: []*Flag{
-			{Name: "--with-equal", assignSigns: []string{"="}},
-		},
+		Key:         "withEqual",
+		Flags:       []*Flag{{Name: "--with-equal"}},
 		AcceptValue: true,
 	})
 	if err != nil {
@@ -102,10 +100,8 @@ func TestParse1(t *testing.T) {
 	}
 
 	err = s.Add(Option{
-		Key: "fromenv",
-		Flags: []*Flag{
-			{Name: "--from-env", assignSigns: []string{"="}},
-		},
+		Key:           "fromenv",
+		Flags:         []*Flag{{Name: "--from-env"}},
 		AcceptValue:   true,
 		MultiValues:   true,
 		Delimiters:    []rune{','},
