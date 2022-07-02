@@ -159,28 +159,28 @@ func (s *OptionSet) splitConcatAssignTokens(tokens []*argToken) []*argToken {
 	return results
 }
 
-func (s *OptionSet) markAmbiguPrefixArgsValues(args []*argToken) {
+func (s *OptionSet) markAmbiguPrefixTokens(tokens []*argToken) {
 	foundAmbiguFlag := false
-	for _, arg := range args {
-		if arg.kind != undetermArg {
+	for _, token := range tokens {
+		if token.kind != undetermArg {
 			foundAmbiguFlag = false
 			continue
 		}
-		actualFlag, ambiguous := s.findFlagByPrefix(arg.text)
+		actualFlag, ambiguous := s.findFlagByPrefix(token.text)
 		if ambiguous {
-			arg.kind = ambiguousFlagArg
+			token.kind = ambiguousFlagArg
 			foundAmbiguFlag = true
 		} else if actualFlag != nil {
-			arg.kind = flagArg
-			arg.text = actualFlag.Name
+			token.kind = flagArg
+			token.text = actualFlag.Name
 			foundAmbiguFlag = false
 		} else if foundAmbiguFlag {
-			arg.kind = ambiguousFlagValueArg
+			token.kind = ambiguousFlagValueArg
 		}
 	}
 }
 
-func (s *OptionSet) markUndefArgsValues(args []*argToken) {
+func (s *OptionSet) markUndefTokens(args []*argToken) {
 	foundUndefFlag := false
 	for _, arg := range args {
 		if arg.kind != undetermArg {
@@ -196,8 +196,8 @@ func (s *OptionSet) markUndefArgsValues(args []*argToken) {
 	}
 }
 
-func isValueArg(flag *Flag, arg *argToken) bool {
-	switch arg.kind {
+func isValueToken(flag *Flag, token *argToken) bool {
+	switch token.kind {
 	case valueArg:
 		return true
 	case undetermArg:
@@ -207,7 +207,7 @@ func isValueArg(flag *Flag, arg *argToken) bool {
 	}
 }
 
-func (s *OptionSet) parseArgsInGroup(tokens []*argToken) (options map[string][]string, rests, ambigus, undefs []string) {
+func (s *OptionSet) parseTokensInGroup(tokens []*argToken) (options map[string][]string, rests, ambigus, undefs []string) {
 	options = map[string][]string{}
 	rests = []string{}
 	ambigus = []string{}
@@ -226,49 +226,49 @@ func (s *OptionSet) parseArgsInGroup(tokens []*argToken) (options map[string][]s
 		tokens = s.splitConcatAssignTokens(tokens)
 	}
 
-	s.markAmbiguPrefixArgsValues(tokens)
-	s.markUndefArgsValues(tokens)
+	s.markAmbiguPrefixTokens(tokens)
+	s.markUndefTokens(tokens)
 
 	// walk
-	for i, argCount, peeked := 0, len(tokens), 0; i < argCount; i, peeked = i+1+peeked, 0 {
-		arg := tokens[i]
+	for i, tokenCount, peeked := 0, len(tokens), 0; i < tokenCount; i, peeked = i+1+peeked, 0 {
+		token := tokens[i]
 
 		// rests
-		if arg.kind == restSignArg {
+		if token.kind == restSignArg {
 			continue
 		}
 
-		if arg.kind == undetermArg {
-			arg.kind = restArg
+		if token.kind == undetermArg {
+			token.kind = restArg
 		}
-		if arg.kind == restArg {
-			rests = append(rests, arg.text)
+		if token.kind == restArg {
+			rests = append(rests, token.text)
 			continue
 		}
 
 		// ambigus
-		if arg.kind == ambiguousFlagValueArg {
+		if token.kind == ambiguousFlagValueArg {
 			continue
 		}
 
-		if arg.kind == ambiguousFlagArg {
-			ambigus = append(ambigus, arg.text)
+		if token.kind == ambiguousFlagArg {
+			ambigus = append(ambigus, token.text)
 			continue
 		}
 
 		// undefs
-		if arg.kind == undefFlagValueArg {
+		if token.kind == undefFlagValueArg {
 			continue
 		}
 
-		if arg.kind == undefFlagArg {
-			undefs = append(undefs, arg.text)
+		if token.kind == undefFlagArg {
+			undefs = append(undefs, token.text)
 			continue
 		}
 
 		// normal
-		opt := flagOptionMap[arg.text]
-		flag := flagMap[arg.text]
+		opt := flagOptionMap[token.text]
+		flag := flagMap[token.text]
 
 		if !opt.AcceptValue { // option has no value
 			options[opt.Key] = []string{}
@@ -276,7 +276,7 @@ func (s *OptionSet) parseArgsInGroup(tokens []*argToken) (options map[string][]s
 		}
 
 		if !opt.MultiValues { // option has 1 value
-			if i == argCount-1 || !isValueArg(flag, tokens[i+1]) { // no more value
+			if i == tokenCount-1 || !isValueToken(flag, tokens[i+1]) { // no more value
 				if opt.OverridePrev || options[opt.Key] == nil {
 					options[opt.Key] = []string{}
 				}
@@ -294,23 +294,23 @@ func (s *OptionSet) parseArgsInGroup(tokens []*argToken) (options map[string][]s
 		//option have multi values
 		values := []string{}
 		for {
-			if i+peeked == argCount-1 { // last arg reached
+			if i+peeked == tokenCount-1 { // last token reached
 				break
 			}
 
-			if !isValueArg(flag, tokens[i+peeked+1]) { // no more value
+			if !isValueToken(flag, tokens[i+peeked+1]) { // no more value
 				break
 			}
 
 			peeked++
-			peekedArg := tokens[i+peeked]
-			peekedArg.kind = valueArg
-			value := peekedArg.text
+			peekedToken := tokens[i+peeked]
+			peekedToken.kind = valueArg
+			text := peekedToken.text
 			var appending []string
 			if len(opt.Delimiters) == 0 {
-				appending = []string{value}
+				appending = []string{text}
 			} else {
-				appending = strings.FieldsFunc(value, opt.isDelimiter)
+				appending = strings.FieldsFunc(text, opt.isDelimiter)
 			}
 
 			if opt.UniqueValues {
@@ -333,27 +333,27 @@ func (s *OptionSet) parseArgsInGroup(tokens []*argToken) (options map[string][]s
 func (s *OptionSet) parseInGroup(specifiedTokens, configTokens []*argToken) *ParseResult {
 	keyOptionMap := s.keyOptionMap
 
-	args, argRests, argAmbigus, argUndefs := s.parseArgsInGroup(specifiedTokens)
+	specifiedOptions, specifiedRests, specifiedAmbigus, specifiedUndefs := s.parseTokensInGroup(specifiedTokens)
 	envs := s.keyEnvMap
-	configs, configRests, configAmbigus, configUndefs := s.parseArgsInGroup(configTokens)
+	configOptions, configRests, configAmbigus, configUndefs := s.parseTokensInGroup(configTokens)
 	defaults := s.keyDefaultMap
 
 	return &ParseResult{
 		keyOptionMap: keyOptionMap,
 
-		args:     args,
-		envs:     envs,
-		configs:  configs,
-		defaults: defaults,
+		specifiedOptions: specifiedOptions,
+		envs:             envs,
+		configOptions:    configOptions,
+		defaults:         defaults,
 
-		argRests:    argRests,
-		configRests: configRests,
+		specifiedRests: specifiedRests,
+		configRests:    configRests,
 
-		argAmbigus:    argAmbigus,
-		configAmbigus: configAmbigus,
+		specifiedAmbigus: specifiedAmbigus,
+		configAmbigus:    configAmbigus,
 
-		argUndefs:    argUndefs,
-		configUndefs: configUndefs,
+		specifiedUndefs: specifiedUndefs,
+		configUndefs:    configUndefs,
 	}
 }
 

@@ -74,18 +74,18 @@ type argToken struct {
 type ParseResult struct {
 	keyOptionMap map[string]*Option
 
-	commands []string
-	args     map[string][]string
-	envs     map[string][]string
-	configs  map[string][]string
-	defaults map[string][]string
+	commands         []string
+	specifiedOptions map[string][]string
+	envs             map[string][]string
+	configOptions    map[string][]string
+	defaults         map[string][]string
 
-	argRests    []string
-	configRests []string
+	specifiedRests []string
+	configRests    []string
 
-	argAmbigus    []string
-	configAmbigus []string
+	specifiedAmbigus []string
+	configAmbigus    []string
 
-	argUndefs    []string
-	configUndefs []string
+	specifiedUndefs []string
+	configUndefs    []string
 }
