@@ -1,7 +1,7 @@
 package goNixArgParser
 
 import (
-	"bytes"
+	"io"
 	"strings"
 )
 
@@ -99,60 +99,58 @@ func NewFlagsValuesOption(key string, flags []string, envVar string, defaultValu
 	}
 }
 
-func (opt *Option) GetHelp() []byte {
-	buffer := &bytes.Buffer{}
+func (opt *Option) OutputHelp(w io.Writer) {
+	newline := []byte{'\n'}
 
 	for i, flag := range opt.Flags {
 		if i > 0 {
-			buffer.WriteString("|")
+			w.Write([]byte{'|'})
 		}
-		buffer.WriteString(flag.Name)
+		io.WriteString(w, flag.Name)
 	}
 
 	if opt.AcceptValue {
-		buffer.WriteString(" <value>")
+		io.WriteString(w, " <value>")
 		if opt.MultiValues {
-			buffer.WriteString(" ...")
+			io.WriteString(w, " ...")
 		}
 	}
 
-	buffer.WriteByte('\n')
+	w.Write(newline)
 
 	if len(opt.EnvVars) > 0 {
-		buffer.WriteString("EnvVar: ")
+		io.WriteString(w, "EnvVar: ")
 
 		for i, envVar := range opt.EnvVars {
 			if i > 0 {
-				buffer.WriteString(", ")
+				io.WriteString(w, ", ")
 			}
-			buffer.WriteString(envVar)
+			io.WriteString(w, envVar)
 		}
 
-		buffer.WriteByte('\n')
+		w.Write(newline)
 	}
 
 	if len(opt.DefaultValues) > 0 {
-		buffer.WriteString("Default: ")
+		io.WriteString(w, "Default: ")
 
 		for i, d := range opt.DefaultValues {
 			if i > 0 {
-				buffer.WriteString(", ")
+				io.WriteString(w, ", ")
 			}
-			buffer.WriteString(d)
+			io.WriteString(w, d)
 		}
 
-		buffer.WriteByte('\n')
+		w.Write(newline)
 	}
 
 	if len(opt.Summary) > 0 {
-		buffer.WriteString(opt.Summary)
-		buffer.WriteByte('\n')
+		io.WriteString(w, opt.Summary)
+		w.Write(newline)
 	}
 
 	if len(opt.Description) > 0 {
-		buffer.WriteString(opt.Description)
-		buffer.WriteByte('\n')
+		io.WriteString(w, opt.Description)
+		w.Write(newline)
 	}
-
-	return buffer.Bytes()
 }

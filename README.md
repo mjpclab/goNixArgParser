@@ -171,7 +171,7 @@ Both root command and sub commands are of type `*Command`. Initial parameters:
 Command or sub command name used for parsing
 
 ### `summary`
-Summary about the command, which will be shown when invoking `GetHelp()` method
+Summary about the command, which will be shown when invoking `OutputHelp(io.Writer)` method
 
 ## OptionSet struct
 One OptionSet manages all options supported by its command or sub command. Initial parameters:

@@ -2,7 +2,7 @@ package goNixArgParser
 
 import (
 	"bytes"
-	"os"
+	"io"
 	"path"
 )
 
@@ -162,45 +162,37 @@ func (c *Command) ParseGroups(specifiedArgs, configArgs []string) (results []*Pa
 	return results
 }
 
-func (c *Command) GetHelp() []byte {
+func (c *Command) OutputHelp(w io.Writer) {
+	newline := []byte{'\n'}
 	buffer := &bytes.Buffer{}
 
 	name := c.Name()
 	if len(name) > 0 {
-		buffer.WriteString(path.Base(name))
-		buffer.WriteString(": ")
+		io.WriteString(w, path.Base(name))
+		io.WriteString(w, ": ")
 	}
 	if len(c.summary) > 0 {
-		buffer.WriteString(c.summary)
+		io.WriteString(w, c.summary)
 	}
 	if buffer.Len() > 0 {
 		buffer.WriteByte('\n')
 	} else {
-		buffer.WriteString("Usage:\n")
+		io.WriteString(w, "Usage:\n")
 	}
 
-	optionsHelp := c.options.GetHelp()
-	if len(optionsHelp) > 0 {
-		buffer.WriteString("\nOptions:\n\n")
-		buffer.Write(optionsHelp)
-	}
+	io.WriteString(w, "\nOptions:\n\n")
+	c.options.OutputHelp(w)
 
 	if len(c.subCommands) > 0 {
-		buffer.WriteString("\nSub commands:\n\n")
+		io.WriteString(w, "\nSub commands:\n\n")
 		for _, cmd := range c.subCommands {
-			buffer.WriteString(cmd.Name())
-			buffer.WriteByte('\n')
+			io.WriteString(w, cmd.Name())
+			w.Write(newline)
 			if len(cmd.summary) > 0 {
-				buffer.WriteString(cmd.summary)
-				buffer.WriteByte('\n')
+				io.WriteString(w, cmd.summary)
+				w.Write(newline)
 			}
-			buffer.WriteByte('\n')
+			w.Write(newline)
 		}
 	}
-
-	return buffer.Bytes()
-}
-
-func (c *Command) PrintHelp() {
-	os.Stdout.Write(c.GetHelp())
 }

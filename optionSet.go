@@ -1,8 +1,8 @@
 package goNixArgParser
 
 import (
-	"bytes"
 	"errors"
+	"io"
 	"os"
 	"strings"
 )
@@ -200,12 +200,10 @@ func (s *OptionSet) AddFlagsValues(key string, flags []string, envVar string, de
 	return s.Add(NewFlagsValuesOption(key, flags, envVar, defaultValues, summary))
 }
 
-func (s *OptionSet) GetHelp() []byte {
-	buffer := &bytes.Buffer{}
+func (s *OptionSet) OutputHelp(w io.Writer) {
+	newline := []byte{'\n'}
 	for _, opt := range s.options {
-		buffer.Write(opt.GetHelp())
-		buffer.WriteByte('\n')
+		opt.OutputHelp(w)
+		w.Write(newline)
 	}
-
-	return buffer.Bytes()
 }
