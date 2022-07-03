@@ -1,7 +1,6 @@
 package goNixArgParser
 
 import (
-	"fmt"
 	"testing"
 )
 
@@ -133,7 +132,6 @@ func TestParse1(t *testing.T) {
 		"--with-equal=notwork",
 	}
 	r := s.Parse(args, nil)
-	fmt.Printf("%+v\n", r)
 
 	if r.HasFlagKey("deft") {
 		t.Error("deft")
@@ -149,7 +147,6 @@ func TestParse1(t *testing.T) {
 	}
 
 	single, _ := r.GetString("single")
-	fmt.Println("single:", single)
 	if single != "false" {
 		t.Error("single")
 	}
@@ -165,13 +162,11 @@ func TestParse1(t *testing.T) {
 	}
 
 	multi, _ := r.GetStrings("multi")
-	fmt.Println("multi:", multi)
 	if len(multi) != 4 {
 		t.Error("multi should have 4 values")
 	}
 	multiInts, _ := r.GetInts("multi")
-	fmt.Println("multiInts:", multiInts)
-	if len(multi) != 4 {
+	if len(multiInts) != 4 {
 		t.Error("multiInts should have 4 values")
 	}
 
@@ -207,11 +202,4 @@ func TestParse1(t *testing.T) {
 	if undefs[2] != "-Wcannotconcat" {
 		t.Error(undefs[2])
 	}
-
-	fmt.Print("fromenv: ")
-	fmt.Println(r.GetStrings("fromenv"))
-
-	fmt.Println("rests:", r.GetRests())
-
-	fmt.Println("undefs:", r.GetUndefs())
 }

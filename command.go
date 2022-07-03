@@ -92,19 +92,21 @@ func (c *Command) SubCommands() []*Command {
 	return c.subCommands
 }
 
-func (c *Command) getLeafCmd(args []string) (cmd *Command, cmdPaths []string) {
-	cmd = c
+func (c *Command) getLeafCmd(args []string) (explicitCmd *Command, inferredCmd *Command, cmdPaths []string) {
+	inferredCmd = c
 
 	if len(args) == 0 {
-		return cmd, []string{}
+		return explicitCmd, inferredCmd, []string{}
 	}
 
 	for i, arg := range args {
-		if i == 0 && cmd.hasName(arg) {
-			cmdPaths = append(cmdPaths, cmd.Name())
-		} else if subCmd := cmd.GetSubCommand(arg); subCmd != nil {
-			cmd = subCmd
-			cmdPaths = append(cmdPaths, cmd.Name())
+		if i == 0 && inferredCmd.hasName(arg) {
+			explicitCmd = c
+			cmdPaths = append(cmdPaths, inferredCmd.Name())
+		} else if subCmd := inferredCmd.GetSubCommand(arg); subCmd != nil {
+			explicitCmd = subCmd
+			inferredCmd = subCmd
+			cmdPaths = append(cmdPaths, inferredCmd.Name())
 		} else {
 			break
 		}
@@ -117,8 +119,8 @@ func (c *Command) extractCmdOptionArgs(specifiedArgs, configArgs []string) (
 	specifiedCmd *Command,
 	cmdPaths, specifiedOptionArgs, configOptionArgs []string,
 ) {
-	specifiedCmd, specifiedCmdPaths := c.getLeafCmd(specifiedArgs)
-	configCmd, configCmdPaths := c.getLeafCmd(configArgs)
+	_, specifiedCmd, specifiedCmdPaths := c.getLeafCmd(specifiedArgs)
+	explicitConfigCmd, configCmd, configCmdPaths := c.getLeafCmd(configArgs)
 
 	cmdPaths = specifiedCmdPaths
 
@@ -126,6 +128,8 @@ func (c *Command) extractCmdOptionArgs(specifiedArgs, configArgs []string) (
 
 	if specifiedCmd == configCmd {
 		configOptionArgs = configArgs[len(configCmdPaths):]
+	} else if explicitConfigCmd == nil {
+		configOptionArgs = configArgs
 	} else {
 		configOptionArgs = []string{}
 	}

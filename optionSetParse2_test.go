@@ -1,7 +1,6 @@
 package goNixArgParser
 
 import (
-	"fmt"
 	"testing"
 )
 
@@ -99,7 +98,6 @@ func TestParse2(t *testing.T) {
 	}
 
 	ports, _ := parsed.GetStrings("ports")
-	fmt.Println("ports:", ports)
 	if len(ports) != 3 {
 		t.Error("ports")
 	}
@@ -109,12 +107,10 @@ func TestParse2(t *testing.T) {
 	}
 
 	props, _ := parsed.GetStrings("props")
-	fmt.Println("props:", props)
 	if len(props) != 5 {
 		t.Error("props")
 	}
 
-	fmt.Println("rests:", parsed.GetRests())
 	if len(parsed.GetRests()) != 1 {
 		t.Error("rests")
 	}

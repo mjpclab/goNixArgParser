@@ -157,3 +157,30 @@ func TestParseCommand6(t *testing.T) {
 		t.Error(results[1].GetStrings("dummy"))
 	}
 }
+
+func TestParseCommand7(t *testing.T) {
+	cmd := getGitCommand()
+	args := []string{"git", "remote", "set-url", "github", "https://github.com/mjpclab/goNixArgParser.git"}
+	configArgs := []string{"--dummy", "dummy0"}
+
+	result := cmd.Parse(args, configArgs)
+
+	cmdPaths := result.GetCommands()
+	if len(cmdPaths) != 3 {
+		t.Error(len(cmdPaths))
+	}
+	if cmdPaths[0] != "git" {
+		t.Error(cmdPaths[0])
+	}
+	if cmdPaths[1] != "remote" {
+		t.Error(cmdPaths[1])
+	}
+	if cmdPaths[2] != "set-url" {
+		t.Error(cmdPaths[2])
+	}
+
+	dummy, _ := result.GetString("dummy")
+	if dummy != "dummy0" {
+		t.Error(dummy)
+	}
+}
