@@ -203,7 +203,9 @@ func (s *OptionSet) AddFlagsValues(key string, flags []string, envVar string, de
 func (s *OptionSet) OutputHelp(w io.Writer) {
 	newline := []byte{'\n'}
 	for _, opt := range s.options {
-		opt.OutputHelp(w)
-		w.Write(newline)
+		if !opt.Hidden {
+			opt.OutputHelp(w)
+			w.Write(newline)
+		}
 	}
 }

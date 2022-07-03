@@ -39,6 +39,7 @@ type Option struct {
 	UniqueValues  bool
 	EnvVars       []string
 	DefaultValues []string
+	Hidden        bool
 }
 
 type Flag struct {

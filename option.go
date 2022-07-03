@@ -100,6 +100,10 @@ func NewFlagsValuesOption(key string, flags []string, envVar string, defaultValu
 }
 
 func (opt *Option) OutputHelp(w io.Writer) {
+	if opt.Hidden {
+		return
+	}
+
 	newline := []byte{'\n'}
 
 	for i, flag := range opt.Flags {
