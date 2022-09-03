@@ -321,3 +321,10 @@ func NewFlag(name string, canMerge, canFollowAssign, canConcatAssign bool) *Flag
 func NewSimpleFlag(name string) *Flag
 func NewSimpleFlags(names []string) []*Flag
 ```
+
+## Helper funcs
+### func SplitToArgs(input string) (args []string)
+Split string into args.
+
+### func LoadConfigArgs(filename string) (args []string, err error)
+Load config from file and split into args
