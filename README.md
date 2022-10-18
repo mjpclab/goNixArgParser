@@ -203,7 +203,7 @@ ls --hide='*.go'
 
 ### `undefFlagPrefixes`
 If an argument is not a flag, and begin with one of the `undefFlagPrefixes`, treat it as an undefined flag.
-Otherwise treat this argument as previous flag's value or rests value.
+Otherwise, treat this argument as previous flag's value or rests value.
 Useful if end user inputs an undefined flag
 
 ## Option struct
@@ -227,14 +227,6 @@ cmd subCmd --option value1,value2,value3
 cmd subCmd --option value1 --option value2 --option value3
 ```
 
-### Shortcut functions to create Option with flags:
-- `NewFlagOption(key, flag, envVar, summary string) Option`  // single flag, without values
-- `NewFlagsOption(key string, flags []string, envVar, summary string) Option`  // multiple flag, without values
-- `NewFlagValueOption(key, flag, envVar, defaultValue, summary string) Option`  // single flag, single value
-- `NewFlagValuesOption(key, flag, envVar string, defaultValues []string, summary string) Option`  // single flag, multiple values
-- `NewFlagsValueOption(key string, flags []string, envVar, defaultValue, summary string) Option` // multiple flags, single value
-- `NewFlagsValuesOption(key string, flags []string, envVar string, defaultValues []string, summary string) Option`  / multiple flags, multiple values
-
 ### `UniqueValues`
 Remove duplicated values for parsed result automatically if true.
 
@@ -247,6 +239,14 @@ Multiple-value option's value should be separated by `Delimiters`.
 Default values for the option as fallback if option is not supplied.
 For option that only accepts single value, only first element is valid.
 
+### Shortcut functions to create Option with flags:
+- `NewFlagOption(key, flag, envVar, summary string) Option`  // single flag, without values
+- `NewFlagsOption(key string, flags []string, envVar, summary string) Option`  // multiple flag, without values
+- `NewFlagValueOption(key, flag, envVar, defaultValue, summary string) Option`  // single flag, single value
+- `NewFlagValuesOption(key, flag, envVar string, defaultValues []string, summary string) Option`  // single flag, multiple values
+- `NewFlagsValueOption(key string, flags []string, envVar, defaultValue, summary string) Option` // multiple flags, single value
+- `NewFlagsValuesOption(key string, flags []string, envVar string, defaultValues []string, summary string) Option`  / multiple flags, multiple values
+
 ## Flag struct
 `Flag` represents a flag of option. Some initial parameter:
 
@@ -254,7 +254,7 @@ For option that only accepts single value, only first element is valid.
 Name of the flag, e.g. `--option-name`.
 
 ### `canMerge`
-Specify if this flag can be merged with others when the name starts with option's `mergeFlagPrefix` and suffix has only 1 character.
+Specify if this flag can be merged with others when the name starts with OptionSet's `mergeFlagPrefix` and suffix has only 1 character.
 
 ### `prefixMatchLen`
 Specify if can use at least `prefixMatchLen` chars to figure out unique flag instead of full name.
