@@ -1,5 +1,8 @@
 # goNixArgParser - Unix/Linux style cli args parser for Go
 
+## Pre-requirement
+Minimal required Go version is 1.16.
+
 ## Concepts
 Command line arguments may contains several kinds of parts:
 - Command and Sub Command
