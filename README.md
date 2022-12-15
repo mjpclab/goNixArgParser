@@ -330,4 +330,4 @@ func NewSimpleFlags(names []string) []*Flag
 Split string into args.
 
 ### func LoadConfigArgs(filename string) (args []string, err error)
-Load config from file and split into args
+Load config from file and split into args. Use "-" for standard input.
