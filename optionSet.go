@@ -127,6 +127,10 @@ func (s *OptionSet) Add(opt Option) error {
 		}
 	}
 
+	if !opt.AcceptValue && len(opt.DefaultValues) > 0 {
+		opt.DefaultValues = nil
+	}
+
 	option := &opt
 
 	// append
