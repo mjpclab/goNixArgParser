@@ -1,7 +1,7 @@
 # goNixArgParser - Unix/Linux style cli args parser for Go
 
 ## Pre-requirement
-Minimal required Go version is 1.16.
+Minimal required Go version is 1.19.
 
 ## Concepts
 Command line arguments may contains several kinds of parts:
@@ -69,23 +69,42 @@ results := cmdGit.Parse(os.Args, nil)
 # Step 3 - Get Results
 There are several methods on parsed result to get final values:
 - `HasKey(key string) bool`
+- `HasValue(key string) bool`
 - `GetString(key string) (value string, found bool)`
+- `GetStringHasValue(key string) (value string, foundKey, foundValue bool)`
 - `GetBool(key string) (value bool, found bool)`
 - `GetInt(key string) (value int, found bool)`
+- `GetUint(key string) (value uint, found bool)`
+- `GetInt32(key string) (value int32, found bool)`
+- `GetUint32(key string) (value uint32, found bool)`
 - `GetInt64(key string) (value int64, found bool)`
 - `GetUint64(key string) (value uint64, found bool)`
 - `GetFloat64(key string) (value float64, found bool)`
 - `GetStrings(key string) (values []string, found bool)`
 - `GetBools(key string) (values []bool, found bool)`
 - `GetInts(key string) (values []int, found bool)`
+- `GetUints(key string) (values []uint, found bool)`
+- `GetInt32s(key string) (values []int32, found bool)`
+- `GetUint32s(key string) (values []uint32, found bool)`
 - `GetInt64s(key string) (values []int64, found bool)`
 - `GetUint64s(key string) (values []uint64, found bool)`
 - `GetFloat64s(key string) (values []float64, found bool)`
+- `GetCommands() []string`
 - `GetRests() (rests []string)`
 - `HasAmbigu() bool`
 - `GetAmbigus() []string`
 - `HasUndef() bool`
 - `GetUndefs() []string`
+
+To tell which source an option value comes from:
+- `HasFlagKey(key string) bool`, `HasFlagValue(key string) bool`
+- `HasEnvKey(key string) bool`, `HasEnvValue(key string) bool`
+- `HasConfigKey(key string) bool`, `HasConfigValue(key string) bool`
+- `HasDefaultKey(key string) bool`, `HasDefaultValue(key string) bool`
+
+To set config items on a parsed result:
+- `SetConfigOption(key, value string)`
+- `SetConfigOptions(key string, values []string)`
 
 Getting value for the example above:
 ```go
@@ -130,6 +149,30 @@ The priority of getting an option's value is:
 - Env var
 - config item
 - default value
+
+A source is skipped if it does not carry a value. For example, if a flag is supplied
+without any value, the lookup continues with Env var, config item and default value.
+
+`GetString` is the exception: it returns the empty value of a supplied flag instead of
+falling back, so that a bare flag can be used to clear a value coming from Env var,
+config item or default value. Use `GetStringHasValue` to tell "key is supplied" from
+"value is available".
+
+```go
+// option "port" is defined with default value "8080"
+// args: []string{"cmd", "--port"}  // flag supplied without value
+port, _ := result.GetString("port")             // "", the supplied flag wins
+port, _, _ = result.GetStringHasValue("port")   // "8080", falls back to default value
+portNum, _ := result.GetInt("port")             // 8080, an empty value is never a valid int
+```
+
+If an option carries multiple values, methods that get a single value return the last one:
+
+```go
+// args: []string{"cmd", "--option", "value1", "--option", "value2"}
+value, _ := result.GetString("option")    // "value2"
+values, _ := result.GetStrings("option")  // []string{"value1", "value2"}
+```
 
 # Arg Groups
 Sometimes a command may do tasks for multiple targets of a kind, e.g. start multiple spare services with different options.
@@ -240,7 +283,7 @@ Multiple-value option's value should be separated by `Delimiters`.
 
 ### `DefaultValues`
 Default values for the option as fallback if option is not supplied.
-For option that only accepts single value, only first element is valid.
+For option that only accepts single value, only last element is valid.
 
 ### Shortcut functions to create Option with flags:
 - `NewFlagOption(key, flag, envVar, summary string) Option`  // single flag, without values
@@ -298,9 +341,9 @@ func (c *Command) NewSubCommand(
 
 ## Creating Custom Option Schema
 Option is defined on `*OptionSet`, which can be got by `*Command.Options()`.
-Use `*OptionSet.Append` to create a customized option, instead of the `AddXXX` method:
+Use `*OptionSet.Add` to create a customized option, instead of the `AddXXX` method:
 ```go
-func (s *OptionSet) Append(opt *Option) error
+func (s *OptionSet) Add(opt Option) error
 
 type Option struct {
 	Key           string
